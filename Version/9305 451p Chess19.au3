@@ -49,7 +49,7 @@ Global $g_old_board[8][8]
 Global $g_sNextColor, $g_sCastling, $g_sEn_passant, $g_iHalfmove, $g_iFullmove
 
 Global $Player_color
-Const $fen_play_white = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+Const $fen_play_white = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 10 21"
 Const $fen_play_black = "RNBKQBNR/PPPPPPPP/8/8/8/8/pppppppp/rnbkqbnr w KQkq - 0 1"
 
 
@@ -89,7 +89,6 @@ EndFunc   ;==>CreateBoard
 #CS INFO
 15212 V1 3/5/2019 4:52:41 PM
 #CE
-
 #cs
 	for $y = 7 to 0 step -1
 	for $x = 0 to 7
@@ -182,4 +181,4 @@ EndFunc   ;==>FenBoard
 #CE
 
 
-;~T ScriptMine.exe 0.08 26 Feb 2019 Backup 3/5/2019 4:52:41 PM
+;~T ScriptMine.exe 0.98 26 Feb 2019 Backup 3/5/2019 4:52:41 PM

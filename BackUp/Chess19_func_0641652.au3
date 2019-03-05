@@ -49,7 +49,7 @@ Global $g_old_board[8][8]
 Global $g_sNextColor, $g_sCastling, $g_sEn_passant, $g_iHalfmove, $g_iFullmove
 
 Global $Player_color
-Const $fen_play_white = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+Const $fen_play_white = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 10 21"
 Const $fen_play_black = "RNBKQBNR/PPPPPPPP/8/8/8/8/pppppppp/rnbkqbnr w KQkq - 0 1"
 
 
@@ -68,7 +68,7 @@ Func Main()
 
 EndFunc   ;==>Main
 #CS INFO
-4545 V2 3/5/2019 4:52:41 PM V1 3/2/2019 2:02:06 PM
+	6070 V1 3/2/2019 2:02:06 PM
 #CE
 
 Func CreateBoard()
@@ -86,9 +86,6 @@ Func CreateBoard()
 	EndIf
 
 EndFunc   ;==>CreateBoard
-#CS INFO
-15212 V1 3/5/2019 4:52:41 PM
-#CE
 
 #cs
 	for $y = 7 to 0 step -1
@@ -177,9 +174,7 @@ Func FenBoard($o_sFen)
 	$g_iFullmove = Int(StringMid($o_sFen, $z)) ;could be more than one digit.  Number between leading and endofline
 
 EndFunc   ;==>FenBoard
-#CS INFO
-73472 V1 3/5/2019 4:52:41 PM
-#CE
 
 
-;~T ScriptMine.exe 0.08 26 Feb 2019 Backup 3/5/2019 4:52:41 PM
+
+;~T ScriptMine.exe 0.98 26 Feb 2019 Backup 3/2/2019 2:02:06 PM

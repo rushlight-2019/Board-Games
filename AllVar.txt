@@ -1,0 +1,16 @@
+$fen_play_white
+$g_board
+$g_iFullmove
+$g_iHalfmove
+$g_sCastling
+$g_sEn_passant
+$g_sNextColor
+$iFile
+$iRank
+$ls_ScreenBoard
+$o_sFen
+$string
+$who
+$x
+$y
+$z
