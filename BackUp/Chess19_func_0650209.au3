@@ -1,6 +1,6 @@
 AutoItSetOption("MustDeclareVars", 1)
 
-Global $ver = "0.02 6 Mar 2019 Display board"
+Global $ver = "0.01 5 Mar 2019 Fen to data"
 
 #include <Debug.au3>
 _DebugSetup(@ScriptName & " " & $ver, True) ; start
@@ -19,9 +19,7 @@ EndFunc   ;==>Out
 Func Pause()
 	MsgBox(0, "", "")
 EndFunc   ;==>Pause
-#CS INFO
-3360 V1 3/6/2019 2:09:26 AM
-#CE
+
 #cs ----------------------------------------------------------------------------
 	to do
 	0.02 6 Mar 2019 Display board
@@ -75,7 +73,7 @@ Func Main()
 
 EndFunc   ;==>Main
 #CS INFO
-5710 V3 3/6/2019 2:09:26 AM V2 3/5/2019 4:52:41 PM V1 3/2/2019 2:02:06 PM
+	4545 V2 3/5/2019 4:52:41 PM V1 3/2/2019 2:02:06 PM
 #CE
 
 Func CreateBoard()
@@ -121,7 +119,7 @@ Func CreateBoard()
 
 EndFunc   ;==>CreateBoard
 #CS INFO
-69529 V2 3/6/2019 2:09:26 AM V1 3/5/2019 4:52:41 PM
+	15212 V1 3/5/2019 4:52:41 PM
 #CE
 
 #cs
@@ -212,8 +210,8 @@ Func FenBoard($o_sFen)
 
 EndFunc   ;==>FenBoard
 #CS INFO
-73344 V2 3/6/2019 2:09:26 AM V1 3/5/2019 4:52:41 PM
+	73472 V1 3/5/2019 4:52:41 PM
 #CE
 
 
-;~T ScriptMine.exe 0.98 26 Feb 2019 Backup 3/6/2019 2:09:26 AM
+;~T ScriptMine.exe 0.08 26 Feb 2019 Backup 3/5/2019 4:52:41 PM

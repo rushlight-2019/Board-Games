@@ -1,4 +1,9 @@
+$c
+$COLOR_RED
+$COLOR_WHITE
 $fen_play_white
+$g_aDisplay
+$g_aDisplayK
 $g_board
 $g_iFullmove
 $g_iHalfmove
@@ -12,5 +17,4 @@ $o_sFen
 $string
 $who
 $x
-$y
 $z

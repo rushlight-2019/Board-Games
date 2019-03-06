@@ -1,6 +1,6 @@
 AutoItSetOption("MustDeclareVars", 1)
 
-Global $ver = "0.02 6 Mar 2019 Display board"
+Global $ver = "0.01 5 Mar 2019 Fen to data"
 
 #include <Debug.au3>
 _DebugSetup(@ScriptName & " " & $ver, True) ; start
@@ -17,14 +17,12 @@ EndFunc   ;==>Out
 #CE
 
 Func Pause()
-	MsgBox(0, "", "")
-EndFunc   ;==>Pause
-#CS INFO
-3360 V1 3/6/2019 2:09:26 AM
-#CE
+	MsgBox(0,"","")
+	EndFunc
+
 #cs ----------------------------------------------------------------------------
 	to do
-	0.02 6 Mar 2019 Display board
+0.02 6 Mar 2019 Display board
 	0.01 5 Mar 2019 Fen to data
 	0.00 1 Mar 2019  Start
 
@@ -38,8 +36,7 @@ EndFunc   ;==>Pause
 #include <Misc.au3>
 #include <Constants.au3>
 #include <GDIPlus.au3>
-#include <ColorConstants.au3>
-#include <GUIConstantsEx.au3>
+
 
 
 Static $UserLoction = EnvGet("USERPROFILE")
@@ -50,7 +47,6 @@ AutoItSetOption("SendKeyDownDelay", 15)
 
 ;Global
 Global $g_aDisplay[8][8]
-Global $g_aDisplayK[8][8]
 Global $g_board[8][8]
 Global $g_old_board[8][8]
 Global $g_sNextColor, $g_sCastling, $g_sEn_passant, $g_iHalfmove, $g_iFullmove
@@ -67,7 +63,7 @@ Exit
 
 
 Func Main()
-	CreateBoard()
+CreateBoard()
 	FenBoard($fen_play_white)
 
 
@@ -75,44 +71,28 @@ Func Main()
 
 EndFunc   ;==>Main
 #CS INFO
-5710 V3 3/6/2019 2:09:26 AM V2 3/5/2019 4:52:41 PM V1 3/2/2019 2:02:06 PM
+4545 V2 3/5/2019 4:52:41 PM V1 3/2/2019 2:02:06 PM
 #CE
 
 Func CreateBoard()
-	Local $iRank, $iFile, $c
+	Local $iRank, $iFile
 	Local Static $ls_ScreenBoard = -1
 
 	If $ls_ScreenBoard = -1 Then
-		$ls_ScreenBoard = GUICreate("Board", 615, 615, -1, -1)
+$ls_ScreenBoard = GUICreate("Board", 615, 615, -1, -1)
 		GUISetState(@SW_SHOW)
 
-		$iRank = 7
-		$iFile = 0
-		;$g_board[$irank][$iFile]
-
-		$c = False
-		For $iRank = 0 To 7
-			For $iFile = 0 To 7
+	$irank = 7
+	$iFile = 0
+				;$g_board[$irank][$iFile]
 
 
-				$g_aDisplayK[$iRank][$iFile] = GUICtrlCreateGraphic($iFile * 64, $iRank * 64, 64, 64)
-				$g_aDisplay[$iRank][$iFile] = GUICtrlCreatePic(@ScriptDir & "\images\empty.bmp", $iFile * 64, $iRank * 64, 64, 64)
-				If $c Then
-					GUICtrlSetBkColor($g_aDisplayK[$iRank][$iFile], $COLOR_RED)
-					$c = False
-				Else
-					GUICtrlSetBkColor($g_aDisplayK[$iRank][$iFile], $COLOR_WHITE)
-					$c = True
-				EndIf
+For $iFile = 0 To 7
+	For $iRank = 0 to 7
 
-;test
-				If $iRank = 5 Then GUICtrlSetImage($g_aDisplay[$iRank][$iFile], @ScriptDir & "\images\brook.bmp")
-				If $iRank = 6 Then GUICtrlSetImage($g_aDisplay[$iRank][$iFile], @ScriptDir & "\images\wKing.bmp")
-
+			$g_aDisplay[$iRank][$iFile]= GUICtrlCreatePic(@ScriptDir & "\images\wRook.bmp",$iRank *64,$iFile * 64, 64, 64)
 
 			Next
-			$c = Not $c
-			Pause()
 		Next
 
 
@@ -121,7 +101,7 @@ Func CreateBoard()
 
 EndFunc   ;==>CreateBoard
 #CS INFO
-69529 V2 3/6/2019 2:09:26 AM V1 3/5/2019 4:52:41 PM
+15212 V1 3/5/2019 4:52:41 PM
 #CE
 
 #cs
@@ -164,7 +144,7 @@ EndFunc   ;==>CreateBoard
 Func FenBoard($o_sFen)
 	Local $x, $z, $iRank, $iFile, $who
 
-	$iRank = 7
+	$irank = 7
 	$iFile = 0
 	$z = 1
 
@@ -172,15 +152,15 @@ Func FenBoard($o_sFen)
 		$who = StringMid($o_sFen, $z, 1)
 		Switch $who
 			Case "/"
-				$iRank -= 1
+				$irank -= 1
 				$iFile = 0
 			Case 1 To 8
 				For $x = 1 To $who
-					$g_board[$iRank][$iFile] = "0"
+					$g_board[$irank][$iFile] = "0"
 					$iFile += 1
 				Next
 			Case "R", "N", "B", "K", "Q", "P", "r", "n", "b", "k", "q", "p"
-				$g_board[$iRank][$iFile] = $who
+				$g_board[$irank][$iFile] = $who
 				$iFile += 1
 			Case " "
 				;exit
@@ -212,8 +192,8 @@ Func FenBoard($o_sFen)
 
 EndFunc   ;==>FenBoard
 #CS INFO
-73344 V2 3/6/2019 2:09:26 AM V1 3/5/2019 4:52:41 PM
+73472 V1 3/5/2019 4:52:41 PM
 #CE
 
 
-;~T ScriptMine.exe 0.98 26 Feb 2019 Backup 3/6/2019 2:09:26 AM
+;~T ScriptMine.exe 0.08 26 Feb 2019 Backup 3/5/2019 4:52:41 PM
