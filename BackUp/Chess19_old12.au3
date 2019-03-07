@@ -43,6 +43,7 @@ EndFunc   ;==>Pause
 #include <Array.au3>
 #include <Misc.au3>
 #include <Constants.au3>
+;#include <GDIPlus.au3>
 #include <ColorConstants.au3>
 #include <GUIConstantsEx.au3>
 
@@ -54,9 +55,8 @@ AutoItSetOption("SendKeyDelay", 15)
 AutoItSetOption("SendKeyDownDelay", 15)
 
 ;Global
-Global $g_aCtrlDisplay[8][8]
-Global $g_aCtrlDisplayBG[8][8]
-Global $g_aBackGound[8][8]
+Global $g_aDisplay[8][8]
+Global $g_aDisplayK[8][8]
 Global $g_board[8][8]
 Global $g_old_board[8][8]
 Global $g_sNextColor, $g_sCastling, $g_sEn_passant, $g_iHalfmove, $g_iFullmove
@@ -64,23 +64,6 @@ Global $g_sNextColor, $g_sCastling, $g_sEn_passant, $g_iHalfmove, $g_iFullmove
 Global $Player_color
 Const $fen_play_white = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 Const $fen_play_black = "RNBKQBNR/PPPPPPPP/8/8/8/8/pppppppp/rnbkqbnr w KQkq - 0 1"
-
-#cs
-	The game Diana chess (or Ladies chess) was suggested by Hopwood in 1870.
-	rbnkbr
-	pppppp
-	-
-	-
-	PPPPPP
-	RBNKBR
-	There are no queens on the board and pawns can't promote to queens either.
-	Pawns cannot move forward two squares on their initial move.
-	Castling is done by switching the positions of the king and rook.
-	The same condition as in chess apply for castling
-	(e.g., the king should not be under check, neither rook nor king should have moved before etc.)
-#ce
-Const $Diana_white = "rnbkbr/pppppp/6/6/PPPPPP/RBNKBR w KQkq - 0 1"
-Const $Diana_black = "RBKNBR/PPPPPP/6/6/pppppp/rbknbr w KQkq - 0 1"
 
 ;pieces
 Global Const $hWhitePawn = @ScriptDir & "\images\wpawn.bmp"
@@ -109,55 +92,51 @@ Func Main()
 	CreateBoard()
 	FenBoard($fen_play_white)
 	updateBoard()
-	Pause()
-	FenBoard($fen_play_black)
-	updateBoard()
-	Pause()
+
+
+
 EndFunc   ;==>Main
 #CS INFO
-11652 V4 3/7/2019 12:11:06 AM V3 3/6/2019 2:09:26 AM V2 3/5/2019 4:52:41 PM V1 3/2/2019 2:02:06 PM
+	5710 V3 3/6/2019 2:09:26 AM V2 3/5/2019 4:52:41 PM V1 3/2/2019 2:02:06 PM
 #CE
 
 Func updateBoard()
-	Local $iRank, $iFile, $y
+	Local $iRank, $iFile, $c
 
-	For $y = 0 To 7
-		$iRank = 7 - $y
+	For $iRank = 0 To 7
 		For $iFile = 0 To 7
-			Select
-				Case $g_board[$iRank][$iFile] == "R"
-					GUICtrlSetImage($g_aCtrlDisplay[$y][$iFile], $hWhiteRook)
-				Case $g_board[$iRank][$iFile] == "N"
-					GUICtrlSetImage($g_aCtrlDisplay[$y][$iFile], $hWhiteKnight)
-				Case $g_board[$iRank][$iFile] == "B"
-					GUICtrlSetImage($g_aCtrlDisplay[$y][$iFile], $hWhiteBishop)
-				Case $g_board[$iRank][$iFile] == "K"
-					GUICtrlSetImage($g_aCtrlDisplay[$y][$iFile], $hWhiteKing)
-				Case $g_board[$iRank][$iFile] == "Q"
-					GUICtrlSetImage($g_aCtrlDisplay[$y][$iFile], $hWhiteQueen)
-				Case $g_board[$iRank][$iFile] == "P"
-					GUICtrlSetImage($g_aCtrlDisplay[$y][$iFile], $hWhitePawn)
-				Case $g_board[$iRank][$iFile] == "p"
-					GUICtrlSetImage($g_aCtrlDisplay[$y][$iFile], $hBlackPawn)
-				Case $g_board[$iRank][$iFile] == "k"
-					GUICtrlSetImage($g_aCtrlDisplay[$y][$iFile], $hBlackKing)
-				Case $g_board[$iRank][$iFile] == "q"
-					GUICtrlSetImage($g_aCtrlDisplay[$y][$iFile], $hBlackQueen)
-				Case $g_board[$iRank][$iFile] == "b"
-					GUICtrlSetImage($g_aCtrlDisplay[$y][$iFile], $hBlackBishop)
-				Case $g_board[$iRank][$iFile] == "n"
-					GUICtrlSetImage($g_aCtrlDisplay[$y][$iFile], $hBlackKnight)
-				Case $g_board[$iRank][$iFile] == "r"
-					GUICtrlSetImage($g_aCtrlDisplay[$y][$iFile], $hBlackRook)
-				Case Else
-					GUICtrlSetImage($g_aCtrlDisplay[$y][$iFile], $hEmpty)
-			EndSelect
+switch $c = $g_aDisplay[$iRank][$iFile]
+	case "R"
+			GUICtrlSetImage($c, $hWhiteRook)
+case "N"
+			GUICtrlSetImage($c, $hWhiteKnight)
+case "B"
+			GUICtrlSetImage($c, $hWhiteBishop)
+case "K"
+			GUICtrlSetImage($c, $hWhiteKing)
+case "Q"
+			GUICtrlSetImage($c, $hWhiteQueen)
+case "P"
+			GUICtrlSetImage($c, $hWhitePawn)
+case "p"
+			GUICtrlSetImage($c, $hBlackPawn)
+case "k"
+			GUICtrlSetImage($c, $hBlackKing)
+case "q"
+			GUICtrlSetImage($c, $hBlackQueen)
+case "b"
+			GUICtrlSetImage($c, $hBlackBishop)
+case "n"
+			GUICtrlSetImage($c, $hBlackKnight)
+case "r"
+			GUICtrlSetImage($c, $hBlackRook)
+case else
+			GUICtrlSetImage($c, $hEmpty)
+			EndSwitch
 		Next
 	Next
 EndFunc   ;==>updateBoard
-#CS INFO
-107178 V1 3/7/2019 12:11:06 AM
-#CE
+
 Func CreateBoard()
 	Local $iRank, $iFile, $c
 	Local Static $ls_ScreenBoard = -1
@@ -165,30 +144,48 @@ Func CreateBoard()
 	If $ls_ScreenBoard = -1 Then
 		$ls_ScreenBoard = GUICreate("Board", 615, 615, -1, -1)
 		GUISetState(@SW_SHOW)
+
+		;$g_board[$irank][$iFile]
+
 		$c = False
-		For $iRank = 0 To 7 ; step -1
+		For $iRank = 0 To 7
 			For $iFile = 0 To 7
-				$g_aCtrlDisplayBG[$iRank][$iFile] = GUICtrlCreateGraphic($iFile * 64, $iRank * 64, 64, 64)
-				$g_aCtrlDisplay[$iRank][$iFile] = GUICtrlCreatePic(@ScriptDir & "\images\empty.bmp", $iFile * 64, $iRank * 64, 64, 64)
+
+
+				$g_aDisplayK[$iRank][$iFile] = GUICtrlCreateGraphic($iFile * 64, $iRank * 64, 64, 64)
+				$g_aDisplay[$iRank][$iFile] = GUICtrlCreatePic(@ScriptDir & "\images\empty.bmp", $iFile * 64, $iRank * 64, 64, 64)
 				If $c Then
-					GUICtrlSetBkColor($g_aCtrlDisplayBG[$iRank][$iFile], $COLOR_RED)
-					$g_aBackGound[$iRank][$iFile]= $COLOR_RED
+					GUICtrlSetBkColor($g_aDisplayK[$iRank][$iFile], $COLOR_RED)
 					$c = False
 				Else
-					GUICtrlSetBkColor($g_aCtrlDisplayBG[$iRank][$iFile], $COLOR_WHITE)
-					$g_aBackGound[$iRank][$iFile]= $COLOR_WHITE
+					GUICtrlSetBkColor($g_aDisplayK[$iRank][$iFile], $COLOR_WHITE)
 					$c = True
 				EndIf
+
+				;test
+				If $iRank = 5 Then GUICtrlSetImage($g_aDisplay[$iRank][$iFile], @ScriptDir & "\images\brook.bmp")
+				If $iRank = 6 Then GUICtrlSetImage($g_aDisplay[$iRank][$iFile], @ScriptDir & "\images\wKing.bmp")
+
+
 			Next
 			$c = Not $c
+			Pause()
 		Next
+
+
+
 	EndIf
+
 EndFunc   ;==>CreateBoard
 #CS INFO
-49560 V3 3/7/2019 12:11:06 AM V2 3/6/2019 2:09:26 AM V1 3/5/2019 4:52:41 PM
+	69529 V2 3/6/2019 2:09:26 AM V1 3/5/2019 4:52:41 PM
 #CE
 
 #cs
+	for $y = 7 to 0 step -1
+	for $x = 0 to 7
+	$z = $y * 8 + $x
+
 	A FEN "record" defines a particular game position, all in one text line and using only the ASCII character set. A text file with only FEN data records should have the file extension ".fen".[1]
 
 	A FEN record contains six fields. The separator between fields is a space. The fields are:
@@ -276,6 +273,6 @@ EndFunc   ;==>FenBoard
 #CE
 
 
+;~T ScriptMine.exe 0.98 26 Feb 2019 Backup 3/6/2019 2:09:26 AM
 
 
-;~T ScriptMine.exe 0.98 26 Feb 2019 Backup 3/7/2019 12:11:06 AM
