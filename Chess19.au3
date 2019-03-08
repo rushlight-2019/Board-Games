@@ -1,6 +1,6 @@
 AutoItSetOption("MustDeclareVars", 1)
 
-Global $ver = "0.03 6 Mar 2019 Update board"
+Global $ver = "0.04 7 Mar 2019 Input Pieces"
 
 #include <Debug.au3>
 _DebugSetup(@ScriptName & " " & $ver, True) ; start
@@ -23,17 +23,17 @@ EndFunc   ;==>Pause
 	3360 V1 3/6/2019 2:09:26 AM
 #CE
 
-
 #cs ----------------------------------------------------------------------------
 	to do
 
+	0.04 7 Mar 2019 Input Pieces
 	0.03 6 Mar 2019 Update board
 	0.02 6 Mar 2019 Display board
 	0.01 5 Mar 2019 Fen to data
 	0.00 1 Mar 2019  Start
 
 	Going to start with the way I know how to do graphic
-	then replace with GUIplus.
+	then replace with GUIplus, maybe.
 
 #ce ----------------------------------------------------------------------------
 
@@ -45,7 +45,6 @@ EndFunc   ;==>Pause
 #include <Constants.au3>
 #include <ColorConstants.au3>
 #include <GUIConstantsEx.au3>
-
 
 Static $UserLoction = EnvGet("USERPROFILE")
 Static $Temp = EnvGet("TEMP")
@@ -79,6 +78,7 @@ Const $fen_play_black = "RNBKQBNR/PPPPPPPP/8/8/8/8/pppppppp/rnbkqbnr w KQkq - 0 
 	The same condition as in chess apply for castling
 	(e.g., the king should not be under check, neither rook nor king should have moved before etc.)
 #ce
+
 Const $Diana_white = "rnbkbr/pppppp/6/6/PPPPPP/RBNKBR w KQkq - 0 1"
 Const $Diana_black = "RBKNBR/PPPPPP/6/6/pppppp/rbknbr w KQkq - 0 1"
 
@@ -103,60 +103,47 @@ Global Const $hEmpty = @ScriptDir & "\images\empty.bmp"
 Main()
 Exit
 
-
-
 Func Main()
 	CreateBoard()
 	FenBoard($fen_play_white)
 	updateBoard()
-	Pause()
-	FenBoard($fen_play_black)
-	updateBoard()
-	Pause()
+	GetInput()
+
 EndFunc   ;==>Main
 #CS INFO
-11652 V4 3/7/2019 12:11:06 AM V3 3/6/2019 2:09:26 AM V2 3/5/2019 4:52:41 PM V1 3/2/2019 2:02:06 PM
+	7819 V5 3/7/2019 9:25:10 PM V4 3/7/2019 12:11:06 AM V3 3/6/2019 2:09:26 AM V2 3/5/2019 4:52:41 PM
 #CE
 
-Func updateBoard()
-	Local $iRank, $iFile, $y
+Func GetInput()
+	Local $nMsg
+	Local $iRank, $iFile
 
-	For $y = 0 To 7
-		$iRank = 7 - $y
-		For $iFile = 0 To 7
-			Select
-				Case $g_board[$iRank][$iFile] == "R"
-					GUICtrlSetImage($g_aCtrlDisplay[$y][$iFile], $hWhiteRook)
-				Case $g_board[$iRank][$iFile] == "N"
-					GUICtrlSetImage($g_aCtrlDisplay[$y][$iFile], $hWhiteKnight)
-				Case $g_board[$iRank][$iFile] == "B"
-					GUICtrlSetImage($g_aCtrlDisplay[$y][$iFile], $hWhiteBishop)
-				Case $g_board[$iRank][$iFile] == "K"
-					GUICtrlSetImage($g_aCtrlDisplay[$y][$iFile], $hWhiteKing)
-				Case $g_board[$iRank][$iFile] == "Q"
-					GUICtrlSetImage($g_aCtrlDisplay[$y][$iFile], $hWhiteQueen)
-				Case $g_board[$iRank][$iFile] == "P"
-					GUICtrlSetImage($g_aCtrlDisplay[$y][$iFile], $hWhitePawn)
-				Case $g_board[$iRank][$iFile] == "p"
-					GUICtrlSetImage($g_aCtrlDisplay[$y][$iFile], $hBlackPawn)
-				Case $g_board[$iRank][$iFile] == "k"
-					GUICtrlSetImage($g_aCtrlDisplay[$y][$iFile], $hBlackKing)
-				Case $g_board[$iRank][$iFile] == "q"
-					GUICtrlSetImage($g_aCtrlDisplay[$y][$iFile], $hBlackQueen)
-				Case $g_board[$iRank][$iFile] == "b"
-					GUICtrlSetImage($g_aCtrlDisplay[$y][$iFile], $hBlackBishop)
-				Case $g_board[$iRank][$iFile] == "n"
-					GUICtrlSetImage($g_aCtrlDisplay[$y][$iFile], $hBlackKnight)
-				Case $g_board[$iRank][$iFile] == "r"
-					GUICtrlSetImage($g_aCtrlDisplay[$y][$iFile], $hBlackRook)
-				Case Else
-					GUICtrlSetImage($g_aCtrlDisplay[$y][$iFile], $hEmpty)
-			EndSelect
-		Next
-	Next
-EndFunc   ;==>updateBoard
+	While 1
+		$nMsg = GUIGetMsg()
+		Switch $nMsg
+			Case $GUI_EVENT_CLOSE
+				Return
+		EndSwitch
+		If $nMsg > 0 Then
+
+			For $iRank = 0 To 7
+				For $iFile = 0 To 7
+					If $nMsg = $g_aCtrlDisplayBG[$iRank][$iFile] Then
+
+						MsgBox(262144, @ScriptLineNumber, "Location: " & Chr(65 + $iFile) & $iRank + 1 & " Piece = " & $g_board[$iRank][$iFile])
+
+					EndIf
+
+				Next
+			Next
+
+		EndIf
+	WEnd
+
+	Pause
+EndFunc   ;==>GetInput
 #CS INFO
-107178 V1 3/7/2019 12:11:06 AM
+	30268 V1 3/7/2019 9:25:10 PM
 #CE
 
 Func CreateBoard()
@@ -167,26 +154,68 @@ Func CreateBoard()
 		$ls_ScreenBoard = GUICreate("Board", 615, 615, -1, -1)
 		GUISetState(@SW_SHOW)
 		$c = False
-		For $iRank = 0 To 7 ; step -1
+		For $iRank = 0 To 7
 			For $iFile = 0 To 7
-				$g_aCtrlDisplayBG[$iRank][$iFile] = GUICtrlCreateGraphic($iFile * 64, $iRank * 64, 64, 64)
-				$g_aCtrlDisplay[$iRank][$iFile] = GUICtrlCreatePic(@ScriptDir & "\images\empty.bmp", $iFile * 64, $iRank * 64, 64, 64)
+				$g_aCtrlDisplayBG[$iRank][$iFile] = GUICtrlCreateGraphic($iFile * 64, (7 - $iRank) * 64, 64, 64) ;Clickable
+				$g_aCtrlDisplay[$iRank][$iFile] = GUICtrlCreatePic(@ScriptDir & "\images\empty.bmp", $iFile * 64, (7 - $iRank) * 64, 64, 64)
 				If $c Then
-					GUICtrlSetBkColor($g_aCtrlDisplayBG[$iRank][$iFile], $COLOR_RED)
-					$g_aBackGound[$iRank][$iFile]= $COLOR_RED
+					GUICtrlSetBkColor($g_aCtrlDisplayBG[$iRank][$iFile], $COLOR_White)
+					$g_aBackGound[$iRank][$iFile] = $COLOR_white
 					$c = False
 				Else
-					GUICtrlSetBkColor($g_aCtrlDisplayBG[$iRank][$iFile], $COLOR_WHITE)
-					$g_aBackGound[$iRank][$iFile]= $COLOR_WHITE
+					GUICtrlSetBkColor($g_aCtrlDisplayBG[$iRank][$iFile], $COLOR_red)
+					$g_aBackGound[$iRank][$iFile] = $COLOR_Red
 					$c = True
 				EndIf
 			Next
 			$c = Not $c
+			;pause()
 		Next
 	EndIf
 EndFunc   ;==>CreateBoard
 #CS INFO
-49560 V3 3/7/2019 12:11:06 AM V2 3/6/2019 2:09:26 AM V1 3/5/2019 4:52:41 PM
+	60056 V5 3/7/2019 9:25:10 PM V4 3/7/2019 12:36:00 PM V3 3/7/2019 12:11:06 AM V2 3/6/2019 2:09:26 AM
+#CE
+
+Func updateBoard()
+	Local $iRank, $iFile
+
+	For $iRank = 0 To 7
+		For $iFile = 0 To 7
+			Select
+				Case $g_board[$iRank][$iFile] == "R"
+					GUICtrlSetImage($g_aCtrlDisplay[$iRank][$iFile], $hWhiteRook)
+				Case $g_board[$iRank][$iFile] == "N"
+					GUICtrlSetImage($g_aCtrlDisplay[$iRank][$iFile], $hWhiteKnight)
+				Case $g_board[$iRank][$iFile] == "B"
+					GUICtrlSetImage($g_aCtrlDisplay[$iRank][$iFile], $hWhiteBishop)
+				Case $g_board[$iRank][$iFile] == "K"
+					GUICtrlSetImage($g_aCtrlDisplay[$iRank][$iFile], $hWhiteKing)
+				Case $g_board[$iRank][$iFile] == "Q"
+					GUICtrlSetImage($g_aCtrlDisplay[$iRank][$iFile], $hWhiteQueen)
+				Case $g_board[$iRank][$iFile] == "P"
+					GUICtrlSetImage($g_aCtrlDisplay[$iRank][$iFile], $hWhitePawn)
+				Case $g_board[$iRank][$iFile] == "p"
+					GUICtrlSetImage($g_aCtrlDisplay[$iRank][$iFile], $hBlackPawn)
+				Case $g_board[$iRank][$iFile] == "k"
+					GUICtrlSetImage($g_aCtrlDisplay[$iRank][$iFile], $hBlackKing)
+				Case $g_board[$iRank][$iFile] == "q"
+					GUICtrlSetImage($g_aCtrlDisplay[$iRank][$iFile], $hBlackQueen)
+				Case $g_board[$iRank][$iFile] == "b"
+					GUICtrlSetImage($g_aCtrlDisplay[$iRank][$iFile], $hBlackBishop)
+				Case $g_board[$iRank][$iFile] == "n"
+					GUICtrlSetImage($g_aCtrlDisplay[$iRank][$iFile], $hBlackKnight)
+				Case $g_board[$iRank][$iFile] == "r"
+					GUICtrlSetImage($g_aCtrlDisplay[$iRank][$iFile], $hBlackRook)
+				Case Else
+					GUICtrlSetImage($g_aCtrlDisplay[$iRank][$iFile], $hEmpty)
+			EndSelect
+		Next
+		;pause()
+	Next
+EndFunc   ;==>updateBoard
+#CS INFO
+	118504 V3 3/7/2019 9:25:10 PM V2 3/7/2019 12:36:00 PM V1 3/7/2019 12:11:06 AM
 #CE
 
 #cs
@@ -276,4 +305,4 @@ EndFunc   ;==>FenBoard
 	73344 V2 3/6/2019 2:09:26 AM V1 3/5/2019 4:52:41 PM
 #CE
 
-;~T ScriptMine.exe 0.98 26 Feb 2019 Backup 3/7/2019 12:11:06 AM
+;~T ScriptMine.exe 0.30 7 Mar 2019 3/7/2019 9:25:10 PM
