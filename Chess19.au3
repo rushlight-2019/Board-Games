@@ -1,6 +1,6 @@
 AutoItSetOption("MustDeclareVars", 1)
 
-Global $ver = "0.05 8 Mar 2018 "
+Global $ver = "0.06 8 Mar 2019"
 
 #include <Debug.au3>
 _DebugSetup(@ScriptName & " " & $ver, True) ; start
@@ -26,7 +26,8 @@ EndFunc   ;==>Pause
 #cs ----------------------------------------------------------------------------
 	to do
 
-	0.05 8 Mar 2018 Select start to move to
+	0.06 8 Mar 2019 Display moves, and store them in file.
+	0.05 8 Mar 2019 Select start to move to
 	0.04 7 Mar 2019 Input Pieces
 	0.03 6 Mar 2019 Update board
 	0.02 6 Mar 2019 Display board
@@ -35,6 +36,19 @@ EndFunc   ;==>Pause
 
 	Going to start with the way I know how to do graphic
 	then replace with GUIplus, maybe.
+
+	 Log in  skip if one use
+		if no user go to new user
+	 Check download folder for Chess Package
+	 Check network folder for Chess Package
+	 Ask to run game from Save
+	 New users
+
+	 do a move
+
+	 Output local file
+	 Output email and network locations packages.
+
 
 #ce ----------------------------------------------------------------------------
 
@@ -46,6 +60,7 @@ EndFunc   ;==>Pause
 #include <Constants.au3>
 #include <ColorConstants.au3>
 #include <GUIConstantsEx.au3>
+#include <GuiEdit.au3>
 
 Static $UserLoction = EnvGet("USERPROFILE")
 Static $Temp = EnvGet("TEMP")
@@ -54,6 +69,12 @@ AutoItSetOption("SendKeyDelay", 15)
 AutoItSetOption("SendKeyDownDelay", 15)
 
 ;Global
+;Display
+;Board is 512 x 512
+Global Static $g_BoardHor = 700
+Global Static $g_BoardVer = 512
+
+;boards
 Global $g_aCtrlDisplay[8][8]
 Global $g_aCtrlDisplayBG[8][8]
 Global $g_aBackGound[8][8]
@@ -107,9 +128,7 @@ Global $g_File
 Global $g_iRankFrom
 Global $g_iFileFrom
 
-;Main
-Main()
-Exit
+;See bottom for Main Call
 
 Func Main()
 	Local $l_fExit = False
@@ -124,9 +143,7 @@ Func Main()
 			ExitLoop
 		EndIf
 		$g_iRankFrom = $g_Rank
-		ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $g_Rank = ' & $g_Rank & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
 		$g_iFileFrom = $g_File
-		ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $g_File = ' & $g_File & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
 
 		Do
 			ShowBG($g_Rank, $g_File, 1)
@@ -154,6 +171,7 @@ Func DoMove() ;No check for valid for now
 	$g_board[$g_Rank][$g_File] = $g_board[$g_iRankFrom][$g_iFileFrom]
 	$g_board[$g_iRankFrom][$g_iFileFrom] = 0
 	ShowBG($g_iRankFrom, $g_iFileFrom)
+
 EndFunc   ;==>DoMove
 #CS INFO
 	17108 V1 3/8/2019 8:15:47 PM
@@ -206,13 +224,31 @@ EndFunc   ;==>ShowBG
 	23545 V1 3/8/2019 8:15:47 PM
 #CE
 
+Global $g_cMoveEdit
+
 Func CreateBoard()
-	Local $iRank, $iFile, $c
 	Local Static $ls_ScreenBoard = -1
+	Local $c
+
+	Local $MoveTextLeft = 64 * 8 + 10
+	Local $MoveTextSize = $g_BoardHor - $MoveTextLeft - 10
+
+
 
 	If $ls_ScreenBoard = -1 Then
-		$ls_ScreenBoard = GUICreate("Board", 560, 560, -1, -1)
+		$ls_ScreenBoard = GUICreate("Chess board - " & $ver, $g_BoardHor, $g_BoardVer, -1, -1)
 		GUISetState(@SW_SHOW)
+
+		GUICtrlCreateLabel("Moves", $MoveTextLeft, 10, 168, 25, $SS_CENTER)
+		GUICtrlSetFont(-1, 12, 400, 0, "MS Sans Serif")
+
+
+		$g_cMoveEdit = GUICtrlCreateEdit("", $MoveTextLeft, 35, $MoveTextSize, 200, $WS_VSCROLL)
+		_GUICtrlEdit_SetReadOnly(-1, True)
+		GUICtrlSetFont(-1, 12, 400, 0, "MS Sans Serif")
+
+		;pause()
+
 		$c = False
 		For $iRank = 0 To 7
 			For $iFile = 0 To 7
@@ -236,6 +272,11 @@ EndFunc   ;==>CreateBoard
 #CS INFO
 	58295 V6 3/8/2019 8:15:47 PM V5 3/7/2019 9:25:10 PM V4 3/7/2019 12:36:00 PM V3 3/7/2019 12:11:06 AM
 #CE
+
+Func CreateMoveText()
+
+
+EndFunc   ;==>CreateMoveText
 
 Func UpdateBoard()
 	Local $iRank, $iFile
@@ -364,5 +405,11 @@ EndFunc   ;==>FenBoard
 #CS INFO
 	73344 V2 3/6/2019 2:09:26 AM V1 3/5/2019 4:52:41 PM
 #CE
+
+
+;Main
+Main()
+Exit
+
 
 ;~T !!ScriptMine.exe V0.31 8 Mar 2019 - 3/8/2019 8:15:47 PM
