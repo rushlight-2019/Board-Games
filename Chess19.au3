@@ -1,6 +1,6 @@
 AutoItSetOption("MustDeclareVars", 1)
 
-Global $ver = "0.06 8 Mar 2019"
+Global $ver = "0.07 17 Mar 2019"
 
 #include <Debug.au3>
 _DebugSetup(@ScriptName & " " & $ver, True) ; start
@@ -9,24 +9,23 @@ _DebugOut($ver)
 Global $DEBUG = @error = 0
 Global $TESTING = True
 
-Func Out($string)
-	_DebugOut($string)
-EndFunc   ;==>Out
-#CS INFO
-	4392 V1 3/2/2019 2:02:06 PM
-#CE
-
-Func Pause()
-	MsgBox(0, "", "")
-EndFunc   ;==>Pause
-#CS INFO
-	3360 V1 3/6/2019 2:09:26 AM
-#CE
-
 #cs ----------------------------------------------------------------------------
 	to do
+Start game menu
+Check import game
+Add new user
+Load save or imported game
 
-	0.06 8 Mar 2019 Display moves, and store them in file.
+Set up game
+Move
+Save game
+Export game for Email or Network location
+Repeat
+
+Check for right moves.
+
+0.07 17 Mar 2019 Start game
+	0.06 8 Mar 2019 Display moves
 	0.05 8 Mar 2019 Select start to move to
 	0.04 7 Mar 2019 Input Pieces
 	0.03 6 Mar 2019 Update board
@@ -48,7 +47,6 @@ EndFunc   ;==>Pause
 
 	 Output local file
 	 Output email and network locations packages.
-
 
 #ce ----------------------------------------------------------------------------
 
@@ -133,6 +131,8 @@ Global $g_iFileFrom
 Func Main()
 	Local $l_fExit = False
 
+MainForm()
+
 	CreateBoard()
 	FenBoard($fen_play_white)
 	$l_fExit = True
@@ -164,17 +164,50 @@ Func Main()
 
 EndFunc   ;==>Main
 #CS INFO
-	59741 V6 3/8/2019 8:15:47 PM V5 3/7/2019 9:25:10 PM V4 3/7/2019 12:11:06 AM V3 3/6/2019 2:09:26 AM
+	41905 V7 3/17/2019 7:01:31 PM V6 3/8/2019 8:15:47 PM V5 3/7/2019 9:25:10 PM V4 3/7/2019 12:11:06 AM
 #CE
 
-Func DoMove() ;No check for valid for now
+Func MainForm()
+local $MainForm, $Title, $List1, $Label1, $group1, $Label2, $button1, $Label3, $Label4, $nMsg
+
+$MainForm = GUICreate("Chess 19 - Version: " & $Ver, 615, 438, 535, 331)
+$Title = GUICtrlCreateLabel("Chess 19", 16, 8, 589, 34, $SS_CENTER)
+GUICtrlSetFont(-1, 16, 800, 0, "Arial Black")
+$Label1 = GUICtrlCreateLabel("Users:", 56, 80, 34, 17)
+$Group1 = GUICtrlCreateGroup("", 8, 64, 601, 97)
+
+$Label2 = GUICtrlCreateLabel("Games  - Import - Save  - New", 40, 184, 146, 17)
+$List1 = GUICtrlCreateList("", 32, 208, 105, 136)
+;$Combo1 = GUICtrlCreateCombo("Combo1", 176, 208, 129, 25, BitOR($CBS_DROPDOWN,$CBS_AUTOHSCROLL))
+$Button1 = GUICtrlCreateButton("New Game", 360, 208, 89, 33)
+$Label3 = GUICtrlCreateLabel("Current game", 48, 368, 539, 17)
+;$Label4 = GUICtrlCreateLabel($Ver, 312, 408, 287, 17, $SS_RIGHT)
+GUISetState(@SW_SHOW)
+
+While 1
+	$nMsg = GUIGetMsg()
+	Switch $nMsg
+		Case $GUI_EVENT_CLOSE
+			Return
+
+	EndSwitch
+WEnd
+
+EndFunc
+#CS INFO
+	63645 V1 3/17/2019 7:01:31 PM
+#CE
+
 	$g_board[$g_Rank][$g_File] = $g_board[$g_iRankFrom][$g_iFileFrom]
 	$g_board[$g_iRankFrom][$g_iFileFrom] = 0
 	ShowBG($g_iRankFrom, $g_iFileFrom)
 
 EndFunc   ;==>DoMove
 #CS INFO
-	17108 V1 3/8/2019 8:15:47 PM
+#CS INFO
+	63645 V1 3/17/2019 7:01:31 PM
+#CE
+
 #CE
 
 Func GetInput()
@@ -233,15 +266,12 @@ Func CreateBoard()
 	Local $MoveTextLeft = 64 * 8 + 10
 	Local $MoveTextSize = $g_BoardHor - $MoveTextLeft - 10
 
-
-
 	If $ls_ScreenBoard = -1 Then
 		$ls_ScreenBoard = GUICreate("Chess board - " & $ver, $g_BoardHor, $g_BoardVer, -1, -1)
 		GUISetState(@SW_SHOW)
 
 		GUICtrlCreateLabel("Moves", $MoveTextLeft, 10, 168, 25, $SS_CENTER)
 		GUICtrlSetFont(-1, 12, 400, 0, "MS Sans Serif")
-
 
 		$g_cMoveEdit = GUICtrlCreateEdit("", $MoveTextLeft, 35, $MoveTextSize, 200, $WS_VSCROLL)
 		_GUICtrlEdit_SetReadOnly(-1, True)
@@ -270,13 +300,15 @@ Func CreateBoard()
 	EndIf
 EndFunc   ;==>CreateBoard
 #CS INFO
-	58295 V6 3/8/2019 8:15:47 PM V5 3/7/2019 9:25:10 PM V4 3/7/2019 12:36:00 PM V3 3/7/2019 12:11:06 AM
+	87968 V7 3/17/2019 7:01:31 PM V6 3/8/2019 8:15:47 PM V5 3/7/2019 9:25:10 PM V4 3/7/2019 12:36:00 PM
 #CE
 
 Func CreateMoveText()
 
-
 EndFunc   ;==>CreateMoveText
+#CS INFO
+	4243 V1 3/17/2019 7:01:31 PM
+#CE
 
 Func UpdateBoard()
 	Local $iRank, $iFile
@@ -406,10 +438,22 @@ EndFunc   ;==>FenBoard
 	73344 V2 3/6/2019 2:09:26 AM V1 3/5/2019 4:52:41 PM
 #CE
 
-
 ;Main
 Main()
 Exit
 
+Func Out($string)
+	_DebugOut($string)
+EndFunc   ;==>Out
+#CS INFO
+	4392 V1 3/2/2019 2:02:06 PM
+#CE
 
-;~T !!ScriptMine.exe V0.31 8 Mar 2019 - 3/8/2019 8:15:47 PM
+Func Pause()
+	MsgBox(0, "", "")
+EndFunc   ;==>Pause
+#CS INFO
+	3360 V1 3/6/2019 2:09:26 AM
+#CE
+
+;~T !!ScriptMine.exe V0.32 14 Mar 2019 - 3/17/2019 7:01:31 PM
