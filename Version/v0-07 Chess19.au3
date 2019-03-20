@@ -3,7 +3,7 @@ AutoItSetOption("MustDeclareVars", 1)
 Global $ver = "0.07 20 Mar 2019"
 
 #include <Debug.au3>
-;_DebugSetup(@ScriptName & " " & $ver, True) ; start
+_DebugSetup(@ScriptName & " " & $ver, True) ; start
 
 _DebugOut($ver)
 Global $DEBUG = @error = 0
