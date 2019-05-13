@@ -10,7 +10,7 @@ AutoItSetOption("MustDeclareVars", 1)
 AutoItSetOption("MustDeclareVars", 1)
 
 ; YOUR ADD
-Global $ver = "0.09 12 May 2019 Start Menu"
+Global $ver = "0.09 5 May 2019 Start Menu"
 Global Static $MESSAGE = True ;FALSE
 #include "R:\!Autoit\Blank\_Debug.au3"
 
@@ -65,7 +65,7 @@ $ver = StringLeft($ver, StringInStr($ver, " ", 0, 4))
 
 	Add to Move list, save
 
-	0.09 12 May 2019 Start Menu
+	0.09 5 May 2019 Start Menu
 
 	0.08 17 Apr 2019  My system updates nothing to do with this  program
 	0.07 20 Mar 2019 Flip game board. see top note.
@@ -350,9 +350,7 @@ Func GetStart() ; Pick up a piece, check to make it your piece
 		EndSwitch
 	Until $Flag
 
-	DataOut("Piece is valid, now check to see it it has a move")
-
-	Pause("Working At")
+	Pause()
 
 
 EndFunc   ;==>GetStart

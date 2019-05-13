@@ -26,7 +26,11 @@ Global $TESTING = True
 
 	Check for right moves.
 
-	0.09  Add to Move list, save
+
+
+	Add to Move list, save
+
+	0.09 5 May 2019 Start Menu
 
 	0.08 17 Apr 2019  My system updates nothing to do with this  program
 	0.07 20 Mar 2019 Flip game board. see top note.
@@ -38,8 +42,7 @@ Global $TESTING = True
 	0.01 5 Mar 2019 Fen to data
 	0.00 1 Mar 2019  Start
 
-	Going to start with the way I know how to do graphic
-	then replace with GUIplus, maybe.
+
 
 	Log in  skip if one use
 	if no user go to new user
@@ -64,12 +67,6 @@ Global $TESTING = True
 #include <ColorConstants.au3>
 #include <GUIConstantsEx.au3>
 #include <GuiEdit.au3>
-
-;Static $UserLoction = EnvGet("USERPROFILE")
-;Static $Temp = EnvGet("TEMP")
-
-;AutoItSetOption("SendKeyDelay", 15)
-;AutoItSetOption("SendKeyDownDelay", 15)
 
 ;Global
 ;Display
@@ -150,15 +147,33 @@ Global $g_FileName
 ;See bottom for Main Call
 
 Func Main()
+
+	PickGame()
+
+
+
+
+EndFunc   ;==>Main
+
+Func PickGame()
+	$g_FileName = FileOpenDialog("Load Game", @ScriptDir & "\Games", "(*.cgm)", "", $FD_FILEMUSTEXIST)
+	If @error <> 0 Then
+		Return
+	EndIf
+
+
+EndFunc   ;==>PickGame
+
+Func Setup()
 	Local $l_fExit = False
-	Local $l_StartWhite = True
+	Local $l_StartWhite = False
 
 	If False Then
 		MainForm()
 	Else ;~~~~~~~~~~~~~~~~~~~~~~~~~
 		$g_FileName = "test.chess"
-		$g_BottomColor = "b"
-		;	$g_BottomColor = "w"
+		;$g_BottomColor = "b"
+		$g_BottomColor = "w"
 	EndIf
 
 	CreateBoard()
@@ -195,7 +210,7 @@ Func Main()
 
 	;	MsgBox(0, "Game done", "Game done")
 
-EndFunc   ;==>Main
+EndFunc   ;==>Setup
 #CS INFO
 	61112 V9 4/17/2019 2:52:17 AM V8 3/20/2019 2:40:29 AM V7 3/17/2019 7:01:31 PM V6 3/8/2019 8:15:47 PM
 #CE
