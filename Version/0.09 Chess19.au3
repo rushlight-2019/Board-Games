@@ -1,20 +1,23 @@
 AutoItSetOption("MustDeclareVars", 1)
+Global $ver = "0.09 14 May 2019 Change 'R' to a number"
+
 
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
-#AutoIt3Wrapper_Outfile=Chess19.exe
-#AutoIt3Wrapper_Outfile_x64=Chess-64.exe
-#AutoIt3Wrapper_Compile_Both=y
+#AutoIt3Wrapper_Res_Fileversion=0.0.0.9
+#AutoIt3Wrapper_Icon=R:\!Autoit\Ico\chess.ico
+#AutoIt3Wrapper_Res_Description=Chess to send to another location
+#AutoIt3Wrapper_Res_LegalCopyright=(c) Phillip Forrestal 2019
+;#AutoIt3Wrapper_Outfile=Chess19.exe
+#AutoIt3Wrapper_Outfile_x64=Chess19.exe
+;#AutoIt3Wrapper_Compile_Both=y
 #AutoIt3Wrapper_UseX64=y
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
-AutoItSetOption("MustDeclareVars", 1)
-
-; YOUR ADD
-Global $ver = "0.09 5 May 2019 Start Menu"
-Global Static $MESSAGE = True ;FALSE
 #include "R:\!Autoit\Blank\_Debug.au3"
 
 Global Static $TESTING = @Compiled = 0
+Global Static $MESSAGE = $TESTING
+
 If $MESSAGE Then
 	_DebugSetup(@ScriptName, True) ; start
 	_DebugOut($ver)
@@ -65,7 +68,8 @@ $ver = StringLeft($ver, StringInStr($ver, " ", 0, 4))
 
 	Add to Move list, save
 
-	0.09 5 May 2019 Start Menu
+0.10 14 May 2019 Moving piece
+	0.09 14 May 2019 Change 'R' to a number
 
 	0.08 17 Apr 2019  My system updates nothing to do with this  program
 	0.07 20 Mar 2019 Flip game board. see top note.
@@ -124,9 +128,32 @@ Global $g_sNextColor, $g_sCastling, $g_sEn_passant, $g_iHalfmove, $g_iFullmove
 
 Global $g_BottomColor
 ; FEN Piece placement (from White's perspective).
-Global Const $g_sFen_Play = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+Static $g_sFen_Play = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+
+Static $WHITE = "1"
+Static $BLACK = "-1"
+Static $EMPTY = 0
+
+Static $wPAWN = 2 ;P
+Static $bPAWN = -2 ;p
+
+Static $wROOK = 3 ;R
+Static $bROOK = -3 ;r
+
+Static $wKNIGHT = 4 ;N
+Static $bKNIGHT = -4 ;n
+
+Static $wBISHOP = 5 ;B
+Static $bBISHOP = -5 ;b
+
+Static $wQUEEN = 6 ;Q
+Static $bQUEEN = -6 ; q
+
+Static $wKING = 7 ;K
+Static $bKING = -7 ;k
 
 #cs
+
 	LATER
 	The game Diana chess (or Ladies chess) was suggested by Hopwood in 1870.
 	rbnkbr
@@ -174,8 +201,8 @@ Global $g_Playing
 
 Global $g_RankTo
 Global $g_FileTo
-Global $g_iRankFrom
-Global $g_iFileFrom
+Global $g_RankFrom
+Global $g_FileFrom
 Global $g_X
 Global $g_Y
 
@@ -193,13 +220,10 @@ Func Main()
 	Else
 		$g_FileName = PickGame()
 	EndIf
-
-
-
-
-
-
 EndFunc   ;==>Main
+#CS INFO
+	12208 V1 5/14/2019 8:14:38 AM
+#CE
 
 Func StartMenu()
 	Local $Form1, $button1, $Button2, $Button3, $nMsg
@@ -222,6 +246,9 @@ Func StartMenu()
 	WEnd
 
 EndFunc   ;==>StartMenu
+#CS INFO
+	36505 V1 5/14/2019 8:14:38 AM
+#CE
 
 Func NewGame()
 	Local $Form1, $button1, $Button2, $Radio1, $Radio2, $nMsg
@@ -245,7 +272,9 @@ Func NewGame()
 		EndSwitch
 	WEnd
 EndFunc   ;==>NewGame
-
+#CS INFO
+	41817 V1 5/14/2019 8:14:38 AM
+#CE
 
 
 Func PickGame()
@@ -256,6 +285,9 @@ Func PickGame()
 
 
 EndFunc   ;==>PickGame
+#CS INFO
+	12711 V1 5/14/2019 8:14:38 AM
+#CE
 
 Func Setup()
 	Local $l_fExit = False
@@ -263,10 +295,10 @@ Func Setup()
 
 	If False Then
 		MainForm()
-	Else ;~~~~~~~~~~~~~~~~~~~~~~~~~
+	Else
 		$g_FileName = "test.chess"
-		;$g_BottomColor = "b"
-		$g_BottomColor = "w"
+		;$g_BottomColor = $BLACK
+		$g_BottomColor = $WHITE
 	EndIf
 
 	CreateBoard()
@@ -274,25 +306,28 @@ Func Setup()
 	FenBoard($g_sFen_Play)
 
 	$l_fExit = True
-	$g_Playing = "w"
+	$g_Playing = $WHITE
 
 	Do ;game loop
 		UpdateBoard($g_BottomColor)
 
-		$l_fExit = GetStart() ;~~
+		GetStartPos() ;~~
+		Pause("Change Backgrout for From")
+		ShowBG($g_RankFrom, $g_FileFrom, 1)
+
 
 		;GetInput() ;Return true exit, board location
 
 		; data stored in $g_Rank, $g_File and $g_Piece
 
-		Pause("Temp Exit")
+		Pause("Temp Exit Game Loo[")
 		Return
 
 		If $l_fExit Then
 			ExitLoop
 		EndIf
-		$g_iRankFrom = $g_Rank
-		$g_iFileFrom = $g_File
+		$g_RankFrom = $g_Rank
+		$g_FileFrom = $g_File
 
 		Do
 			ShowBG($g_Y, $g_X, 1)
@@ -304,7 +339,7 @@ Func Setup()
 			$g_FileTo = $g_File
 			$g_RankTo = $g_Rank
 
-		Until Not ($g_iRankFrom = $g_Rank And $g_iFileFrom = $g_File) ;Put in Check Valid move here
+		Until Not ($g_RankFrom = $g_Rank And $g_FileFrom = $g_File) ;Put in Check Valid move here
 
 		DoMove()
 		;Store move in file
@@ -316,46 +351,152 @@ Func Setup()
 
 EndFunc   ;==>Setup
 #CS INFO
-	61112 V9 4/17/2019 2:52:17 AM V8 3/20/2019 2:40:29 AM V7 3/17/2019 7:01:31 PM V6 3/8/2019 8:15:47 PM
+	72762 V12 5/14/2019 4:54:04 PM V11 5/14/2019 9:00:10 AM V10 5/14/2019 8:14:38 AM V9 4/17/2019 2:52:17 AM
 #CE
 
 Func DoMove() ;No check for valid for now
-	$g_board[$g_RankTo][$g_FileTo] = $g_board[$g_iRankFrom][$g_iFileFrom]
-	$g_board[$g_iRankFrom][$g_iFileFrom] = 0
+	$g_board[$g_RankTo][$g_FileTo] = $g_board[$g_RankFrom][$g_FileFrom]
+	$g_board[$g_RankFrom][$g_FileFrom] = $EMPTY
 	;
-	;	ShowBG($g_iRankFrom, $g_iFileFrom)
+	;	ShowBG($g_RankFrom, $g_FileFrom)
 EndFunc   ;==>DoMove
 #CS INFO
-	17616 V2 3/20/2019 2:40:29 AM V1 3/8/2019 8:15:47 PM
+	17373 V4 5/14/2019 4:54:04 PM V3 5/14/2019 8:14:38 AM V2 3/20/2019 2:40:29 AM V1 3/8/2019 8:15:47 PM
 #CE
 
 ;~~
-Func GetStart() ; Pick up a piece, check to make it your piece
+Func GetStartPos() ; Pick up a piece, check to make it your piece
 	Do
-		GetInput() ; data stored in $g_Rank, $g_File and $g_Piece
-		DataOut($g_Rank, $g_File)
-		DataOut($g_board[$g_Rank][$g_File])
-		DataOut("Piece", $g_Piece)
-		Local $Flag = False
+		Do
+			GetInput() ; data stored in $g_Rank, $g_File and $g_Piece
+			DataOut($g_Rank, $g_File)
+			DataOut($g_board[$g_Rank][$g_File])
+			DataOut("Piece", $g_Piece)
+			Local $Flag = False
 
-		Switch $g_Piece
-			Case "P", "R", "N", "B", "Q", "K" ;white
-				If $g_Playing = "w" Then
+			If StringIsUpper($g_Piece) Then ;White
+				If $g_Playing = $WHITE Then
 					$Flag = True
 				EndIf
-			Case "p:", "r", "n", "b", "q", "k" ; black
-				If $g_Playing = "b" Then
+			Else
+				If $g_Playing = $BLACK Then
 					$Flag = True
 				EndIf
-		EndSwitch
-	Until $Flag
-
-	Pause()
+			EndIf
+		Until $Flag
 
 
-EndFunc   ;==>GetStart
+		;		Case "P", "R", "N", "B", "Q", "K" ;white
+		;		Case "p:", "r", "n", "b", "q", "k" ; black
 
+		DataOut("Piece is valid, now check to see it it has a move")
 
+		Pause("Working At~~")
+		$g_RankFrom = $g_Rank
+		$g_FileFrom = $g_File
+		$g_RankTo = -1
+		$g_FileTo = -1
+
+	Until ValidMove(0)
+EndFunc   ;==>GetStartPos
+#CS INFO
+	50792 V2 5/14/2019 4:54:04 PM V1 5/14/2019 8:14:38 AM
+#CE
+
+Func ValidMove($Type) ; $g_RankFrom, $gFileFrom, $g_Piece  $Type=0:Can move
+	Local $Rank, $File, $Direction, $Flag
+
+	$Flag = False ; False = move not valid - True = Can move this way  =
+	Switch $g_Piece
+		Case $wPAWN, $bPAWN
+			$Flag = CheckPawn($Type)
+		Case $wROOK, $bROOK
+			$Flag = CheckRook($Type)
+	EndSwitch
+	If $Flag Then
+		Return True
+	EndIf
+	DataOut("ValidMove failed")
+	Return False
+
+EndFunc   ;==>ValidMove
+#CS INFO
+	30329 V3 5/14/2019 4:54:04 PM V2 5/14/2019 9:00:10 AM V1 5/14/2019 8:14:38 AM
+#CE
+
+Func CheckPawn($Type) ;
+	Return False
+EndFunc   ;==>CheckPawn
+#CS INFO
+	4807 V2 5/14/2019 9:00:10 AM V1 5/14/2019 8:14:38 AM
+#CE
+
+Func CheckRook($Type)
+	Local $f, $r, $p
+
+	For $Y = 1 To 4
+		DataOut("Direction", $Y)
+		$f = $g_FileFrom
+		$r = $g_RankFrom
+
+		For $z = 1 To 8
+			$f = $g_FileFrom
+			$r = $g_RankFrom
+			DataOut("Move ", $z)
+			Switch $Y
+				Case 1 ;Left
+					$r = $g_FileFrom + $z
+				Case 2 ; Up
+					$r = $g_RankFrom + $z
+				Case 3 ; Right
+					$r = $g_FileFrom - $z
+				Case 4 ; Nown
+					$r = $g_RankFrom + $z
+			EndSwitch
+			If OnBoard($r, $f) Then
+				DataOut("Piece at test ", $g_board[$r][$f])
+				$p = $g_board[$r][$f]
+				Switch $Type
+					Case 0 ; looking for free or other player  only need one
+						If $p = $EMPTY Then
+							Return True
+						EndIf
+						If $p > 0 Then ;White
+							If $g_Playing = $BLACK Then
+								Return True
+							EndIf
+						Else
+							If $g_Playing = $WHITE Then ;Lower case
+								Return True
+							EndIf
+						EndIf
+
+				EndSwitch
+			Else
+				ExitLoop ; off edge
+			EndIf
+
+			Pause()
+		Next
+	Next
+	Return False
+EndFunc   ;==>CheckRook
+#CS INFO
+	56730 V3 5/14/2019 4:54:04 PM V2 5/14/2019 9:00:10 AM V1 5/14/2019 8:14:38 AM
+#CE
+
+Func OnBoard($Rank, $File)
+	If $Rank > 7 And $Rank < 0 Then
+		Return False
+	EndIf
+	If $File > 7 And $File < 0 Then
+		Return False
+	EndIf
+	Return True
+EndFunc   ;==>OnBoard
+#CS INFO
+	11723 V1 5/14/2019 9:00:10 AM
+#CE
 Func MainForm()
 	Local $MainForm, $Title, $List1, $Label1, $group1, $Label2, $button1, $Label3, $nMsg
 
@@ -387,6 +528,8 @@ EndFunc   ;==>MainForm
 	64133 V3 4/17/2019 2:52:17 AM V2 3/20/2019 2:40:29 AM V1 3/17/2019 7:01:31 PM
 #CE
 
+
+
 Func GetInput()
 	Local $nMsg, $Y, $X
 
@@ -394,6 +537,7 @@ Func GetInput()
 		$nMsg = GUIGetMsg()
 		Switch $nMsg
 			Case $GUI_EVENT_CLOSE
+				Exit
 				Return True
 		EndSwitch
 		If $nMsg > 0 Then
@@ -402,7 +546,7 @@ Func GetInput()
 					If $nMsg = $g_aCtrlDisplayBG[$Y][$X] Then
 						$g_Y = $Y
 						$g_X = $X
-						If $g_BottomColor = "w" Then
+						If $g_BottomColor = $WHITE Then
 							$g_File = $X ;X to File-1
 							$g_Rank = $Y ;Y to Rank-1
 						Else ;b
@@ -421,7 +565,7 @@ Func GetInput()
 	Return True
 EndFunc   ;==>GetInput
 #CS INFO
-	34187 V3 3/20/2019 2:40:29 AM V2 3/8/2019 8:15:47 PM V1 3/7/2019 9:25:10 PM
+	40071 V5 5/14/2019 4:54:04 PM V4 5/14/2019 8:14:38 AM V3 3/20/2019 2:40:29 AM V2 3/8/2019 8:15:47 PM
 #CE
 
 Func ShowBG($Y, $X, $BG = 0) ; 0 = Base, 1= Section
@@ -465,8 +609,6 @@ Func CreateBoard()
 		_GUICtrlEdit_SetReadOnly(-1, True)
 		GUICtrlSetFont(-1, 12, 400, 0, "MS Sans Serif")
 
-		;pause()
-
 		$c = False
 		For $Y = 0 To 7
 			For $X = 0 To 7
@@ -483,12 +625,11 @@ Func CreateBoard()
 				EndIf
 			Next
 			$c = Not $c
-			;pause()
 		Next
 	EndIf
 EndFunc   ;==>CreateBoard
 #CS INFO
-	80651 V8 3/20/2019 2:40:29 AM V7 3/17/2019 7:01:31 PM V6 3/8/2019 8:15:47 PM V5 3/7/2019 9:25:10 PM
+	79287 V9 5/14/2019 4:54:04 PM V8 3/20/2019 2:40:29 AM V7 3/17/2019 7:01:31 PM V6 3/8/2019 8:15:47 PM
 #CE
 
 Func CreateMoveText()
@@ -503,41 +644,41 @@ Func UpdateBoard($Bottom)
 
 	For $Y = 0 To 7
 		For $X = 0 To 7
-			If $Bottom = "w" Then
+			If $Bottom = $WHITE Then
 				$iRank = $Y
 				$iFile = $X
 			Else
 				$iRank = 7 - $Y
 				$iFile = 7 - $X
 			EndIf
-			Select
-				Case $g_board[$iRank][$iFile] == "R"
+			Switch $g_board[$iRank][$iFile]
+				Case $wROOK
 					GUICtrlSetImage($g_aCtrlDisplay[$Y][$X], $hWhiteRook)
-				Case $g_board[$iRank][$iFile] == "N"
+				Case $wKNIGHT
 					GUICtrlSetImage($g_aCtrlDisplay[$Y][$X], $hWhiteKnight)
-				Case $g_board[$iRank][$iFile] == "B"
+				Case $wBISHOP
 					GUICtrlSetImage($g_aCtrlDisplay[$Y][$X], $hWhiteBishop)
-				Case $g_board[$iRank][$iFile] == "K"
+				Case $wKING
 					GUICtrlSetImage($g_aCtrlDisplay[$Y][$X], $hWhiteKing)
-				Case $g_board[$iRank][$iFile] == "Q"
+				Case $wQUEEN
 					GUICtrlSetImage($g_aCtrlDisplay[$Y][$X], $hWhiteQueen)
-				Case $g_board[$iRank][$iFile] == "P"
+				Case $wPAWN
 					GUICtrlSetImage($g_aCtrlDisplay[$Y][$X], $hWhitePawn)
-				Case $g_board[$iRank][$iFile] == "p"
+				Case $bPAWN
 					GUICtrlSetImage($g_aCtrlDisplay[$Y][$X], $hBlackPawn)
-				Case $g_board[$iRank][$iFile] == "k"
+				Case $bKING
 					GUICtrlSetImage($g_aCtrlDisplay[$Y][$X], $hBlackKing)
-				Case $g_board[$iRank][$iFile] == "q"
+				Case $bQUEEN
 					GUICtrlSetImage($g_aCtrlDisplay[$Y][$X], $hBlackQueen)
-				Case $g_board[$iRank][$iFile] == "b"
+				Case $bBISHOP
 					GUICtrlSetImage($g_aCtrlDisplay[$Y][$X], $hBlackBishop)
-				Case $g_board[$iRank][$iFile] == "n"
+				Case $bKNIGHT
 					GUICtrlSetImage($g_aCtrlDisplay[$Y][$X], $hBlackKnight)
-				Case $g_board[$iRank][$iFile] == "r"
+				Case $bROOK
 					GUICtrlSetImage($g_aCtrlDisplay[$Y][$X], $hBlackRook)
 				Case Else
 					GUICtrlSetImage($g_aCtrlDisplay[$Y][$X], $hEmpty)
-			EndSelect
+			EndSwitch
 			;			Global $g_aSelected[8][8] ; which is using the select colors  use to kill the flicker
 			If $g_aSelected[$Y][$X] = 1 Then
 				If $g_aBackGound[$Y][$X] = 0 Then
@@ -550,7 +691,7 @@ Func UpdateBoard($Bottom)
 	Next
 EndFunc   ;==>UpdateBoard
 #CS INFO
-	134984 V5 3/20/2019 2:40:29 AM V4 3/8/2019 8:15:47 PM V3 3/7/2019 9:25:10 PM V2 3/7/2019 12:36:00 PM
+	113988 V6 5/14/2019 4:54:04 PM V5 3/20/2019 2:40:29 AM V4 3/8/2019 8:15:47 PM V3 3/7/2019 9:25:10 PM
 #CE
 
 #cs
@@ -595,28 +736,65 @@ Func FenBoard($o_sFen)
 
 	Do
 		$who = StringMid($o_sFen, $z, 1)
-		Switch $who
-			Case "/"
+		Select ; $who
+			Case $who = "/"
 				$iRank -= 1
 				$iFile = 0
-			Case 1 To 8
-				For $X = 1 To $who
-					$g_board[$iRank][$iFile] = "0"
+			Case Int($who) >= 1
+				DataOut($who, Int($who))
+				For $X = 1 To Int($who)
+					$g_board[$iRank][$iFile] = $EMPTY
 					$iFile += 1
 				Next
-			Case "R", "N", "B", "K", "Q", "P", "r", "n", "b", "k", "q", "p"
-				$g_board[$iRank][$iFile] = $who
+			Case $who == "R"
+				$g_board[$iRank][$iFile] = $wROOK
 				$iFile += 1
-			Case " "
+			Case $who == "N"
+				$g_board[$iRank][$iFile] = $wKNIGHT
+				$iFile += 1
+			Case $who == "B"
+				$g_board[$iRank][$iFile] = $wBISHOP
+				$iFile += 1
+			Case $who == "K"
+				$g_board[$iRank][$iFile] = $wKING
+				$iFile += 1
+			Case $who == "Q"
+				$g_board[$iRank][$iFile] = $wQUEEN
+				$iFile += 1
+			Case $who == "P"
+				$g_board[$iRank][$iFile] = $wPAWN
+				$iFile += 1
+			Case $who == "r"
+				$g_board[$iRank][$iFile] = $bROOK
+				$iFile += 1
+			Case $who == "n"
+				$g_board[$iRank][$iFile] = $bKNIGHT
+				$iFile += 1
+			Case $who == "b"
+				$g_board[$iRank][$iFile] = $bBISHOP
+				$iFile += 1
+			Case $who == "k"
+				$g_board[$iRank][$iFile] = $bKING
+				$iFile += 1
+			Case $who == "q"
+				$g_board[$iRank][$iFile] = $bQUEEN
+				$iFile += 1
+			Case $who == "p"
+				$g_board[$iRank][$iFile] = $bPAWN
+				$iFile += 1
+			Case $who == " "
 				;exit
-		EndSwitch
+		EndSelect
 		$z += 1
 
 	Until $who = " "
 
 	;_ArrayDisplay($g_board)
-
-	$g_sNextColor = StringMid($o_sFen, $z, 1) ; w or b
+	If StringMid($o_sFen, $z, 1) = "w" Then ; w or b
+		$g_sNextColor = $WHITE
+	Else
+		$g_sNextColor = $BLACK
+	EndIf
 	$z += 1
 	$g_sCastling = ""
 	Do
@@ -637,7 +815,7 @@ Func FenBoard($o_sFen)
 
 EndFunc   ;==>FenBoard
 #CS INFO
-	73280 V3 3/20/2019 2:40:29 AM V2 3/6/2019 2:09:26 AM V1 3/5/2019 4:52:41 PM
+	128830 V4 5/14/2019 4:54:04 PM V3 3/20/2019 2:40:29 AM V2 3/6/2019 2:09:26 AM V1 3/5/2019 4:52:41 PM
 #CE
 
 ;Main
@@ -663,4 +841,4 @@ Exit
 	Rank Board to
 #ce
 
-;~T ScriptFunc.exe V0.53 17 Apr 2019 - 4/17/2019 2:54:42 AM
+;~T ScriptFunc.exe V0.54 11 May 2019  - 5/14/2019 4:54:04 PM
