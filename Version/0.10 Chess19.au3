@@ -428,7 +428,7 @@ EndFunc   ;==>CheckPawn
 #CE
 
 Func CheckRook($Type)
-	Local $f, $p, $r
+	Local $f, $r, $p
 
 	For $Y = 1 To 4
 		DataOut("Direction", $Y)
@@ -441,19 +441,19 @@ Func CheckRook($Type)
 			DataOut("Move ", $z)
 			Switch $Y
 				Case 1 ;Left
-					$f = $g_FileFrom + $z
+					$r = $g_FileFrom + $z
 				Case 2 ; Up
 					$r = $g_RankFrom + $z
 				Case 3 ; Right
-					$f = $g_FileFrom - $z
+					$r = $g_FileFrom - $z
 				Case 4 ; Nown
-					$r = $g_RankFrom -$z
+					$r = $g_RankFrom + $z
 			EndSwitch
 			DataOut($r, $f)
 
 			If OnBoard($r, $f) Then
 				$p=$g_board[$r][$f]
-				pause("Piece at test ",$p)
+				dataout("Piece at test ",$p)
 				Switch $Type
 					Case 0 ; looking for free or other player  only need one
 						If $p = $EMPTY Then
@@ -473,11 +473,9 @@ Func CheckRook($Type)
 				ExitLoop ; off edge
 			EndIf
 
-			Pause("Dir1")
+			Pause("Dir")
 		Next
-		Pause("Dir2")
 	Next
-	Pause("Dir3")
 	Return False
 EndFunc   ;==>CheckRook
 #CS INFO
@@ -485,10 +483,10 @@ EndFunc   ;==>CheckRook
 #CE
 
 Func OnBoard($Rank, $File)
-	If $Rank > 7 or $Rank < 0 Then
+	If $Rank > 7 And $Rank < 0 Then
 		Return False
 	EndIf
-	If $File > 7 or $File < 0 Then
+	If $File > 7 And $File < 0 Then
 		Return False
 	EndIf
 	DataOut("On Board")
