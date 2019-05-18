@@ -1,0 +1,349 @@
+string whitemoves(int epa, int epb){	//epa is integer for en passant square file, epb is en passant square rank, together they make a coordinate
+	string allmoves;
+	int fromSQa[218];
+	int fromSQb[218];
+	int toSQa[218];
+	int toSQb[218];
+	
+	int a = 0;
+	int b = 0;
+	int c = 0;
+	int d = 0;
+	int e = 0;
+	int f = 0;
+	int z = 0;
+	string promotions;
+	int i2;
+
+	promotions = "qrbn";
+
+	for (a = 0; a < 8; a++){
+		for (b = 0; b < 8; b++){
+			switch (board[a][b]) {
+			
+				case queen:
+					{
+						for (e = -1; e <= 1; e++) {
+						for (f = -1; f <= 1; f++) {
+							c = a + e;
+							d = b + f;
+							if (!(f == 0 && e == 0)) {
+								do {
+									if (bounds(c, d)) {
+										
+										if (board[c][d] == 0) {
+											fromSQa[z] = a;
+											fromSQb[z] = b;
+											toSQa[z] = c;
+											toSQb[z] = d;
+											z = z + 1;
+										}
+										if (board[c][d] < 0) {
+											fromSQa[z] = a;
+											fromSQb[z] = b;
+											toSQa[z] = c;
+											toSQb[z] = d;
+
+											z = z + 1;
+											break; 
+										}
+										if (board[c][d] > 0) break; 
+										c = c + e;
+										d = d + f;
+									}
+								}
+								while (!(bounds(c, d) == false));
+							
+							}
+							
+						}
+					}
+
+				
+				case rook:
+					for (e = -1; e <= 1; e++) {
+						for (f = -1; f <= 1; f++) {
+							c = a + e;
+							d = b + f;
+							if (abs(e)+abs(f) == 1) {
+								do {
+									if (bounds(c, d)) {
+										
+										if (board[c][d] == 0) {
+											fromSQa[z] = a;
+											fromSQb[z] = b;
+											toSQa[z] = c;
+											toSQb[z] = d;
+											z = z + 1;
+										}
+										if (board[c][d] < 0) {
+											fromSQa[z] = a;
+											fromSQb[z] = b;
+											toSQa[z] = c;
+											toSQb[z] = d;
+
+											z = z + 1;
+											break; 
+										}
+										if (board[c][d] > 0) break; 
+										c = c + e;
+										d = d + f;
+									}
+								}
+								while (!(bounds(c, d) == false));
+							
+							}
+							
+						}
+					}
+					break;
+					case bishop:
+					for (e = -1; e <= 1; e++) {
+						for (f = -1; f <= 1; f++) {
+							c = a + e;
+							d = b + f;
+							if (abs(e)+abs(f) == 2) {
+								do {
+									if (bounds(c, d)) {
+										
+										if (board[c][d] == 0) {
+											fromSQa[z] = a;
+											fromSQb[z] = b;
+											toSQa[z] = c;
+											toSQb[z] = d;
+											z = z + 1;
+										}
+									if (board[c][d] < 0) {
+										fromSQa[z] = a;
+										fromSQb[z] = b;
+										toSQa[z] = c;
+										toSQb[z] = d;
+
+										z = z + 1;
+										break; 
+									}
+									if (board[c][d] > 0) break; 
+
+								}
+							c = c + e;
+							d = d + f;
+							}
+							while (!(bounds(c, d) == false));
+						}
+					}
+				}
+				break;
+				case knight:
+					for(e=-2; e<=2; e+=1){
+						for(f=-2; f<=2; f+=1){
+							c = a + e;
+							d = b + f;
+							if(abs(e) + abs(f) == 3){
+								if(bounds(c,d)){
+									if(board[c][d]<=0){
+										fromSQa[z]=a;
+										fromSQb[z]=b;
+										toSQa[z]=c;
+										toSQb[z]=d;
+										z+=1;
+									}
+								}
+							}
+						}
+					}
+					break;
+					case pawn:
+						//white pawn attack left and forward
+						c = a + 1;
+						d = b - 1;
+						if (bounds(c, d)) {		//bounds checks if the square is on the board, if not go to next move direction for pawn.
+							
+							if (board[c][d] < 0 || (epa == c && epb == d)) { //if diagonal square attacked contains a piece valued less than zero then capture is possible, or square is the en passant square from previous move.
+								fromSQa[z] = a;
+								fromSQb[z] = b;
+								toSQa[z] = c;
+								toSQb[z] = d;
+								z = z + 1;
+							}
+						}
+						//white pawn attack right and forward
+						c = a + 1;
+						d = b + 1;
+						if (bounds(c, d)) {
+							
+							if (board[c][d] < 0 || (epa == c && epb == d)) {
+								fromSQa[z] = a;
+								fromSQb[z] = b;
+								toSQa[z] = c;
+								toSQb[z] = d;
+								z = z + 1;
+							}
+						}
+						//check if one square forward is unoccupied and add it to the movelist
+							if (a == 1) {
+								c = 2;
+								d = b;
+								if (bounds(c, d)) {
+									
+									if (board[c][d] == 0) {
+										fromSQa[z] = a;
+										fromSQb[z] = b;
+										toSQa[z] = c;
+										toSQb[z] = d;
+										z = z + 1;
+										c = 3;
+										d = b;
+										//another square forward if the pawn is on it's starting rank
+										if (bounds(c, d)) {
+											
+											if (board[c][d] == 0) {
+												fromSQa[z] = a;
+												fromSQb[z] = b;
+												toSQa[z] = c;
+												toSQb[z] = d;
+												z = z + 1;
+											}
+										}
+									}
+								}
+							}
+						else {	//pawn is not on starting rank
+							c = a + 1;
+							d = b;
+							if (bounds(c, d)) {
+								if (board[c][d] == 0) {
+									fromSQa[z] = a;
+									fromSQb[z] = b;
+									toSQa[z] = c;
+									toSQb[z] = d;
+									z = z + 1;
+								}
+							}
+						}
+
+					break;
+					case king:
+						for (e = -1; e <= 1; e++) {
+							for (f = -1; f <= 1; f++) {
+								if (!(e == 0 && f == 0)) {
+									c = a + e;
+									d = b + f;
+
+									if (bounds(c, d)) {		//checks if coordinates exist on the board
+													  
+										if (board[c][d] <= 0 && checkwhite(c, d, a, B)/>.empty()) {
+											fromSQa[z] = a;
+											fromSQb[z] = b;
+											toSQa[z] = c;
+											toSQb[z] = d;
+											z = z + 1;
+										}
+									}
+								}
+							}
+						}
+					//castleKingSide
+						if (wkside && a == 0 && b == 4 && board[0][7] == rook && board[0][6] == 0 && board[0][5] == 0) {
+							if (checkwhite(0, 4, 0, 4).empty() && checkwhite(0, 5, 0, 4).empty() && checkwhite(0, 6, 0, 4).empty()) {
+								fromSQa[z] = 0;
+								fromSQb[z] = 4;
+								toSQa[z] = 0;
+								toSQb[z] = 6;
+								z = z + 1;
+							}
+						}
+
+						//castleQueenSide
+						if (wqside == true && a == 0 && b == 4 && board[0][0] == rook && board[0][1] == 0 && board[0][2] == 0 && board[0][3] == 0) {
+							if (checkwhite(0, 4, 0, 4).empty() && checkwhite(0, 3, 0, 4).empty() && checkwhite(0, 2, 0, 4).empty()) {
+								fromSQa[z] = 0;
+								fromSQb[z] = 4;
+								toSQa[z] = 0;
+								toSQb[z] = 2;
+								z = z + 1;
+							}
+						}
+				} // close switch
+
+			}
+
+
+		}
+	}
+	//now all moves are checked to see if they leave the white king in check and if they do they are discarded from the list
+	int i;
+	int captured;
+	int wksqa, wksqb;
+	string addmove;
+
+	for(a = 0; a <= 7; a++){
+		for(b = 0; b <= 7; b++){
+			if(board[a][b] == king){
+				wksqa = a;
+				wksqb = b;
+				goto kingfound;
+			}		
+		}
+	}
+kingfound:
+	
+
+
+	bool epcapture;
+	epcapture = false;
+	
+	i = 0;
+	for(i = 0; i < z; i++){
+		a = fromSQa[i];
+		b = fromSQb[i];
+		c = toSQa[i];
+		d = toSQb[i];
+
+		//perform the move
+		captured = board[c][d];
+		board[c][d] = board[a][b];
+		board[a][b] = 0;
+
+		if(board[c][d] == pawn && (b != d) && (captured == 0) && bounds((c - 1), d)){
+			board[c-1][d] = 0;
+			epcapture = true;
+		}
+
+		//if the king is the piece moving wksqa and wksqb won't contain the coordinates of the king! c and d will
+		if(board[c][d] == king){
+			if(checkwhite(c, d, 64, 0).empty()){
+				//add move to list, otherwise discard move (do nothing)
+				addmove = chfile(B)/> + chrank(a) + chfile(d) + chrank(c);		//convert coordinates to ascii
+				allmoves = allmoves + addmove;		//add to the movelist
+			}
+		}
+		else{		//if the king is not the piece moving then the king is in the coordinates wksqa and wksqb, and we check that square for check, if it is check it is not added to the movelist (allmoves)
+			if(checkwhite(wksqa, wksqb, 64, 0).empty()){
+				//add move to list, otherwise discard move (do nothing)
+				if(!(board[c][d] == pawn && (c == 7))){		// if the move is not a pawn progressed to the 8th rank, then add move to the list, otherwise, pawn promotions and underpromotions must be added to the move list (each)
+					addmove = chfile(B)/> + chrank(a) + chfile(d) + chrank(c);		//convert coordinates to ascii
+					allmoves = allmoves + addmove;		//add to the movelist
+				}
+				else{
+					for(i2 = 0; i2 < 4; i2++){
+						addmove = chfile(B)/> + chrank(a) + chfile(d) + promotions.substr(i2,1);		//promotion is 4 characters the file the pawn starts on followed by the rank and file moving to (if capturing will be different) followed by either q for promote to queen, r for rook, n for knight and b for bishop.
+						allmoves = allmoves + addmove;		//add to the movelist
+					}
+				}
+			}
+		}
+
+
+		//undo the move
+		board[a][b] = board[c][d];
+		board[c][d] = captured;
+
+		if (epcapture == true){
+			board[c-1][d] = -pawn;
+			epcapture = false;
+
+		}
+
+	}
+	return allmoves;
+}

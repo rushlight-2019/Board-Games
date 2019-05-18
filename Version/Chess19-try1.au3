@@ -289,8 +289,8 @@ Func Setup()
 		MainForm()
 	Else
 		$g_FileName = "test.chess"
-		;$g_BottomColor = $BLACK
-		$g_BottomColor = $WHITE
+		$g_BottomColor = $BLACK
+		;$g_BottomColor = $WHITE
 	EndIf
 
 	CreateBoard()
@@ -298,7 +298,7 @@ Func Setup()
 	FenBoard($g_sFen_Play)
 
 	$l_fExit = True
-	$g_Playing = $WHITE
+	$g_Playing = $g_BottomColor
 
 	DataOut("Start Game Loop")
 
