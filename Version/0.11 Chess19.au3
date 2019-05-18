@@ -33,10 +33,12 @@ EndFunc   ;==>DataOut
 #CE
 
 Func Pause($string = "", $sString2 = "")
-	MsgBox(262144, $string, $sString2)
+	If $TESTING Then
+		MsgBox(262144, $string, $sString2)
+	EndIf
 EndFunc   ;==>Pause
 #CS INFO
-	6847 V1 5/9/2019 12:49:19 PM
+	8453 V2 5/18/2019 12:03:12 PM V1 5/9/2019 12:49:19 PM
 #CE
 
 $ver = StringLeft($ver, StringInStr($ver, " ", 0, 4))
@@ -110,6 +112,8 @@ Global Static $g_displayHor = 700
 Global Static $g_displayVer = 512
 
 ;boards
+
+; Lower Left is 0,0
 Global $g_FEN[8][8] ; white is alway 0,0
 
 ;display board
@@ -211,6 +215,7 @@ Global $g_FileName
 
 Func Main()
 	Setup()
+	Game()
 	Return
 
 	If $TESTING Then
@@ -220,7 +225,7 @@ Func Main()
 	EndIf
 EndFunc   ;==>Main
 #CS INFO
-	12208 V1 5/14/2019 8:14:38 AM
+	12667 V2 5/18/2019 12:03:12 PM V1 5/14/2019 8:14:38 AM
 #CE
 
 Func StartMenu()
@@ -286,20 +291,34 @@ EndFunc   ;==>PickGame
 #CE
 
 Func Setup()
-	Local $l_fExit = False
-	Local $l_StartWhite = False
+	;	Local $l_StartWhite = False
+	Local $sS
 
 	If False Then
 		MainForm()
 	Else
 		$g_FileName = "test.chess"
-		$g_BottomColor = $BLACK
-		;$g_BottomColor = $WHITE
+		$sS = InputBox("Pick Color", "W=White, B=Black, 9 sec delay B", "W", "", -1, -1, Default, Default, 9)
+		If $sS = "B" Then
+			$g_BottomColor = $BLACK ;****************
+		Else
+			$g_BottomColor = $WHITE
+		EndIf
 	EndIf
+
+	DataOut("BottomColor W=1 B=-1", $g_BottomColor)
 
 	CreateBoard()
 
 	FenBoard($g_sFen_Play)
+
+EndFunc   ;==>Setup
+#CS INFO
+	30517 V1 5/18/2019 12:03:12 PM
+#CE
+
+Func Game()
+	Local $l_fExit = False
 
 	$l_fExit = True
 	$g_Playing = $g_BottomColor
@@ -312,6 +331,8 @@ Func Setup()
 		GetStartPos() ;~~
 		Pause("Change Backgrout for From")
 		ShowBG($g_RankFrom, $g_FileFrom, 1)
+
+		;		GetToPos() ; ~~
 
 		;GetInput() ;Return true exit, board location
 
@@ -346,9 +367,9 @@ Func Setup()
 
 	;	MsgBox(0, "Game done", "Game done")
 
-EndFunc   ;==>Setup
+EndFunc   ;==>Game
 #CS INFO
-	75884 V14 5/17/2019 9:26:45 AM V13 5/14/2019 5:47:13 PM V12 5/14/2019 4:54:04 PM V11 5/14/2019 9:00:10 AM
+	62674 V15 5/18/2019 12:03:12 PM V14 5/17/2019 9:26:45 AM V13 5/14/2019 5:47:13 PM V12 5/14/2019 4:54:04 PM
 #CE
 
 Func DoMove() ;No check for valid for now
@@ -363,11 +384,12 @@ EndFunc   ;==>DoMove
 
 ;~~
 Func GetStartPos() ; Pick up a piece, check to make it your piece
+	DataOut("GetStartPos")
 	Do
 		Do
 			GetInput() ; data stored in $g_Rank, $g_File and $g_Piece
 			DataOut($g_Rank, $g_File)
-			DataOut("Piece GSP", $g_Piece)
+			DataOut("Piece GetStartPos: ", $g_Piece)
 			Local $Flag = False
 
 			If $g_Piece > 0 Then ;check to make sure it the player piece
@@ -392,15 +414,18 @@ Func GetStartPos() ; Pick up a piece, check to make it your piece
 	Until ValidMove(0)
 EndFunc   ;==>GetStartPos
 #CS INFO
-	44889 V3 5/14/2019 5:47:13 PM V2 5/14/2019 4:54:04 PM V1 5/14/2019 8:14:38 AM
+	47792 V4 5/18/2019 12:03:12 PM V3 5/14/2019 5:47:13 PM V2 5/14/2019 4:54:04 PM V1 5/14/2019 8:14:38 AM
 #CE
 
 Func ValidMove($Type) ; $g_RankFrom, $gFileFrom, $g_Piece  $Type=0:Can move
 	Local $Rank, $File, $Direction, $Flag
 
+	DataOut("ValidMove ", $Type)
+
 	$Flag = False ; False = move not valid - True = Can move this way  =
 	Switch $g_Piece
 		Case $wPAWN, $bPAWN
+			CheckPawn(1)
 			$Flag = CheckPawn($Type)
 		Case $wROOK, $bROOK
 			$Flag = CheckRook($Type)
@@ -413,11 +438,12 @@ Func ValidMove($Type) ; $g_RankFrom, $gFileFrom, $g_Piece  $Type=0:Can move
 
 EndFunc   ;==>ValidMove
 #CS INFO
-	30329 V3 5/14/2019 4:54:04 PM V2 5/14/2019 9:00:10 AM V1 5/14/2019 8:14:38 AM
+	33583 V4 5/18/2019 12:03:12 PM V3 5/14/2019 4:54:04 PM V2 5/14/2019 9:00:10 AM V1 5/14/2019 8:14:38 AM
 #CE
 
 Func CheckPawn($Type) ;
-	Local $f, $p, $r, $a
+	Local $f, $p, $r, $a, $valid, $c
+	$valid = False
 
 	For $Y = 1 To 4
 		DataOut("Direction", $Y)
@@ -430,19 +456,27 @@ Func CheckPawn($Type) ;
 				$f = $g_FileFrom + 1
 				$r = $g_RankFrom + 1
 				$a = True
+				$c = 3
 			Case 2 ; Left Attact
 				$f = $g_FileFrom - 1
 				$r = $g_RankFrom + 1
 				$a = True
+				$c = 3
 			Case 3 ; Up one
 				$r = $g_RankFrom + 1
+				$c = 2
 			Case 4 ; Up two if on start position
+
 				If $g_RankFrom = 1 Then
-					$r = $g_RankFrom + 1
+					$r = $r + 1
 					If OnBoard($r, $f) Then
 						If $g_display[$r][$f] = $EMPTY Then
-							$r = $g_RankFrom + 1
+							$r = $r + 1
+						Else
+							$r = -1 ;off board fail
 						EndIf
+					Else
+						$r = -1 ;off board fail
 					EndIf
 				Else
 					$r = -1 ;off board fail
@@ -455,37 +489,40 @@ Func CheckPawn($Type) ;
 
 			$p = $g_display[$r][$f]
 
-			Pause("Piece at test ", $p)
-			Switch $Type
-				Case 0 ; looking for free or other player  only need one
-					If $a And $p <> $EMPTY Then
-						If $g_Playing = $BLACK Then ;+x
-							Return True
-						EndIf
-					Else
-						If $g_Playing = $WHITE Then ; -x
-							Return True
-						EndIf
-					EndIf
+			If $a And $p <> $EMPTY Then
+				If $g_Playing = $BLACK Then ;+x
+					$valid = True
+				EndIf
+			Else
+				If $g_Playing = $WHITE Then ; -x
+					$valid = True
+				EndIf
+			EndIf
+			If $p = $EMPTY Then
+				$valid = True
+			EndIf
 
-					If $p = $EMPTY Then
-						Return True
-					EndIf
-					ExitLoop ; Because found a your piece.  start new direction
-
-			EndSwitch
-		Else
-			ExitLoop ; off edge
+			If $Type = 0 And $valid Then
+				Return True
+			EndIf
+		EndIf
+		If $Type = 1 And $valid Then
+			ShowBG($r, $f, $c)
 		EndIf
 
-		Pause("Dir2")
 	Next
-	Pause("Dir3")
+
+	Switch $Type
+		Case 0
+
+		Case 1
+	EndSwitch
+
 	Return False
 
 EndFunc   ;==>CheckPawn
 #CS INFO
-	77844 V3 5/17/2019 9:26:45 AM V2 5/14/2019 9:00:10 AM V1 5/14/2019 8:14:38 AM
+	85668 V4 5/18/2019 12:03:12 PM V3 5/17/2019 9:26:45 AM V2 5/14/2019 9:00:10 AM V1 5/14/2019 8:14:38 AM
 #CE
 
 Func CheckRook($Type)
@@ -514,7 +551,7 @@ Func CheckRook($Type)
 
 			If OnBoard($r, $f) Then
 				$p = $g_display[$r][$f]
-				Pause("Piece at test ", $p)
+				DataOut("Piece at test ", $p)
 				Switch $Type
 					Case 0 ; looking for free or other player  only need one
 						If $p = $EMPTY Then
@@ -542,7 +579,7 @@ Func CheckRook($Type)
 	Return False
 EndFunc   ;==>CheckRook
 #CS INFO
-	66528 V6 5/17/2019 9:26:45 AM V5 5/15/2019 10:20:45 AM V4 5/14/2019 5:47:13 PM V3 5/14/2019 4:54:04 PM
+	66708 V7 5/18/2019 12:03:12 PM V6 5/17/2019 9:26:45 AM V5 5/15/2019 10:20:45 AM V4 5/14/2019 5:47:13 PM
 #CE
 
 Func OnBoard($Rank, $File)
@@ -590,7 +627,7 @@ EndFunc   ;==>MainForm
 	64133 V3 4/17/2019 2:52:17 AM V2 3/20/2019 2:40:29 AM V1 3/17/2019 7:01:31 PM
 #CE
 
-Func GetInput()
+Func GetInput() ; Get input  Botton Left is ALWAYS 0.0   Will translate color when stored move to FEN board  9518
 	Local $nMsg, $Y, $X
 
 	While 1
@@ -604,17 +641,19 @@ Func GetInput()
 			For $Y = 0 To 7
 				For $X = 0 To 7
 					If $nMsg = $g_CtrlBG[$Y][$X] Then
-						$g_Y = $Y
-						$g_X = $X
-						If $g_BottomColor = $WHITE Then
-							$g_File = $X ;X to File-1
-							$g_Rank = $Y ;Y to Rank-1
-						Else ;b
-							$g_File = 7 - $X ;X to File-1
-							$g_Rank = 7 - $Y ;Y to Rank-1
-						EndIf
+						;$g_Y = $Y
+						;$g_X = $X
+						;If $g_BottomColor = $WHITE Then
+						$g_File = $X ;X to File-1
+						$g_Rank = $Y ;Y to Rank-1
+						;Else ;b
+						;	$g_File = 7 - $X ;X to File-1
+						;	$g_Rank = 7 - $Y ;Y to Rank-1
+						;EndIf
 						$g_Piece = $g_display[$g_Rank][$g_File]
-						DataOut("PieceGI", $g_Piece)
+						DataOut($g_Rank, $g_File)
+						DataOut("PieceGI ", $g_Piece)
+
 						Return False
 					EndIf
 				Next
@@ -625,11 +664,12 @@ Func GetInput()
 	Return True
 EndFunc   ;==>GetInput
 #CS INFO
-	39630 V7 5/17/2019 9:26:45 AM V6 5/14/2019 5:47:13 PM V5 5/14/2019 4:54:04 PM V4 5/14/2019 8:14:38 AM
+	49499 V8 5/18/2019 12:03:12 PM V7 5/17/2019 9:26:45 AM V6 5/14/2019 5:47:13 PM V5 5/14/2019 4:54:04 PM
 #CE
 
-Func ShowBG($Y, $X, $BG = 0) ; 0 = Base, 1= Section
+Func ShowBG($Y, $X, $BG = 0) ; 0 = Base, 1= Section, 2=To
 	;Global $g_aSelected[8][8] ; which is using the select colors  use to kill the flicker
+
 	Local $SelColor = 0x92ff24 ; Selected
 
 	Switch $BG
@@ -639,6 +679,13 @@ Func ShowBG($Y, $X, $BG = 0) ; 0 = Base, 1= Section
 			Else
 				$SelColor = $COLOR_RED
 			EndIf
+		Case 1
+			$SelColor = 0x92FF24 ; Selected
+		Case 2
+			$SelColor = 0x80FFFF ; to
+		Case 3
+			$SelColor = 0xFF80FF
+
 	EndSwitch
 
 	GUICtrlSetBkColor($g_CtrlBG[$Y][$X], $SelColor)
@@ -646,10 +693,12 @@ Func ShowBG($Y, $X, $BG = 0) ; 0 = Base, 1= Section
 
 EndFunc   ;==>ShowBG
 #CS INFO
-	34470 V3 5/17/2019 9:26:45 AM V2 3/20/2019 2:40:29 AM V1 3/8/2019 8:15:47 PM
+	41585 V4 5/18/2019 12:03:12 PM V3 5/17/2019 9:26:45 AM V2 3/20/2019 2:40:29 AM V1 3/8/2019 8:15:47 PM
 #CE
 
 Global $g_cMoveEdit
+
+; Lower Left is 0,0
 
 Func CreateBoard()
 	Local Static $ls_ScreenBoard = -1
@@ -657,6 +706,8 @@ Func CreateBoard()
 
 	Local $MoveTextLeft = 64 * 8 + 10
 	Local $MoveTextSize = $g_displayHor - $MoveTextLeft - 10
+
+	DataOut("CreateBoard")
 
 	If $ls_ScreenBoard = -1 Then
 		$ls_ScreenBoard = GUICreate("Chess board - " & $ver, $g_displayHor, $g_displayVer, -1, -1)
@@ -674,6 +725,7 @@ Func CreateBoard()
 			For $X = 0 To 7
 				$g_CtrlBG[$Y][$X] = GUICtrlCreateGraphic($X * 64, (7 - $Y) * 64, 64, 64) ;Clickable
 				$g_Ctrl[$Y][$X] = GUICtrlCreatePic(@ScriptDir & "\images\empty.bmp", $X * 64, (7 - $Y) * 64, 64, 64)
+
 				If $c Then
 					$g_aBackGound[$Y][$X] = 0
 					GUICtrlSetBkColor($g_CtrlBG[$Y][$X], $COLOR_White)
@@ -683,13 +735,14 @@ Func CreateBoard()
 					GUICtrlSetBkColor($g_CtrlBG[$Y][$X], $COLOR_red)
 					$c = True
 				EndIf
+				;	pause($Y,$X)
 			Next
 			$c = Not $c
 		Next
 	EndIf
 EndFunc   ;==>CreateBoard
 #CS INFO
-	76805 V10 5/17/2019 9:26:45 AM V9 5/14/2019 4:54:04 PM V8 3/20/2019 2:40:29 AM V7 3/17/2019 7:01:31 PM
+	79703 V11 5/18/2019 12:03:12 PM V10 5/17/2019 9:26:45 AM V9 5/14/2019 4:54:04 PM V8 3/20/2019 2:40:29 AM
 #CE
 
 Func CreateMoveText()
@@ -699,8 +752,10 @@ EndFunc   ;==>CreateMoveText
 	4243 V1 3/17/2019 7:01:31 PM
 #CE
 
-Func UpdateBoard($Bottom)
+Func UpdateBoard($Bottom) ; Who on Bottom will be at Bottom Left 0,0
 	Local $Y, $X, $iRank, $iFile
+
+	DataOut("UpdateBoard", $Bottom)
 
 	For $Y = 0 To 7
 		For $X = 0 To 7
@@ -711,8 +766,12 @@ Func UpdateBoard($Bottom)
 				$iRank = 7 - $Y
 				$iFile = 7 - $X
 			EndIf
-			pause("Color on display board")
-			Switch $g_display[$iRank][$iFile]
+
+			;     Put piece in the display array
+			$g_display[$Y][$X] = $g_FEN[$iRank][$iFile]
+
+			;     Output piece on the screen
+			Switch $g_FEN[$iRank][$iFile]
 				Case $wROOK
 					GUICtrlSetImage($g_Ctrl[$Y][$X], $hWhiteRook)
 				Case $wKNIGHT
@@ -740,19 +799,24 @@ Func UpdateBoard($Bottom)
 				Case Else
 					GUICtrlSetImage($g_Ctrl[$Y][$X], $hEmpty)
 			EndSwitch
-			;			Global $g_aSelected[8][8] ; which is using the select colors  use to kill the flicker
-			If $g_aSelected[$Y][$X] = 1 Then
-				If $g_aBackGound[$Y][$X] = 0 Then
-					GUICtrlSetBkColor($g_CtrlBG[$Y][$X], $COLOR_White)
-				Else
-					GUICtrlSetBkColor($g_CtrlBG[$Y][$X], $COLOR_red)
-				EndIf
-			EndIf
+
+			; Removed 9518 not needed  Backgound set in CreateBoard, and select has it own fuction.  BG doesn't change with player
+			;    Gobal $g_aSelected[8][8] ; which is using the select colors  use to kill the flicker
+			;	If $g_aSelected[$Y][$X] = 1 Then
+			;		If $g_aBackGound[$Y][$X] = 0 Then
+			;			GUICtrlSetBkColor($g_CtrlBG[$Y][$X], $COLOR_White)
+			;		Else
+			;			GUICtrlSetBkColor($g_CtrlBG[$Y][$X], $COLOR_red)
+			;		EndIf
+			;	EndIf
 		Next
 	Next
+
+	_ArrayDisplay($g_display, "Display playing, will be at 0,0")
+
 EndFunc   ;==>UpdateBoard
 #CS INFO
-	104582 V8 5/18/2019 6:55:11 AM V7 5/17/2019 9:26:45 AM V6 5/14/2019 4:54:04 PM V5 3/20/2019 2:40:29 AM
+	130949 V9 5/18/2019 12:03:12 PM V8 5/18/2019 6:55:11 AM V7 5/17/2019 9:26:45 AM V6 5/14/2019 4:54:04 PM
 #CE
 
 #cs
@@ -791,10 +855,12 @@ EndFunc   ;==>UpdateBoard
 Func FenBoard($o_sFen)
 	Local $X, $z, $iRank, $iFile, $who
 
+	DataOut("FenBoard", $g_sFen_Play)
+
 	$iRank = 7
 	$iFile = 0
 	$z = 1
-Pause("1. This should be the FEN board, not display board")
+
 	Do
 		$who = StringMid($o_sFen, $z, 1)
 		Select ; $who
@@ -849,7 +915,8 @@ Pause("1. This should be the FEN board, not display board")
 
 	Until $who = " "
 
-	;_ArrayDisplay($g_FEN)
+	_ArrayDisplay($g_FEN, "FEN  white at 0,0")
+
 	If StringMid($o_sFen, $z, 1) = "w" Then ; w or b
 		$g_sNextColor = $WHITE
 	Else
@@ -875,11 +942,14 @@ Pause("1. This should be the FEN board, not display board")
 
 EndFunc   ;==>FenBoard
 #CS INFO
-	127386 V7 5/18/2019 6:55:11 AM V6 5/17/2019 9:26:45 AM V5 5/14/2019 5:47:13 PM V4 5/14/2019 4:54:04 PM
+	126604 V8 5/18/2019 12:03:12 PM V7 5/18/2019 6:55:11 AM V6 5/17/2019 9:26:45 AM V5 5/14/2019 5:47:13 PM
 #CE
 
 ;Main
 Main()
+If $TESTING = False Then
+	MsgBox(0, "Done", "DONE to what I have programed")
+EndIf
 Exit
 
 #cs
@@ -899,4 +969,4 @@ Exit
 	Rank Board to
 #ce
 
-;~T ScriptFunc.exe V0.54a 15 May 2019 - 5/18/2019 6:55:11 AM
+;~T ScriptFunc.exe V0.54a 15 May 2019 - 5/18/2019 12:03:12 PM
